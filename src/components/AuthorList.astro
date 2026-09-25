@@ -1,0 +1,50 @@
+---
+/**
+ * Author list. `mode="with"` prints co-authors only ("with A, B and C"),
+ * `mode="all"` prints every author and highlights the site owner.
+ */
+import { isSelf } from '../lib/research';
+
+interface Props {
+  authors: string[];
+  mode?: 'with' | 'all';
+  class?: string;
+}
+
+const { authors, mode = 'with', class: className } = Astro.props;
+const others = authors.filter((a) => !isSelf(a));
+const list = mode === 'with' ? others : authors;
+---
+
+{
+  mode === 'with' && others.length === 0 ? (
+    <p class:list={['authors', className]}>Single-authored</p>
+  ) : (
+    <p class:list={['authors', className]}>
+      {mode === 'with' && <span class="authors__with">with </span>}
+      {list.map((name, i) => (
+        <>
+          {isSelf(name) ? <span class="authors__self">{name}</span> : <span>{name}</span>}
+          {i < list.length - 2 ? ', ' : i === list.length - 2 ? (list.length > 2 ? ', and ' : ' and ') : ''}
+        </>
+      ))}
+    </p>
+  )
+}
+
+<style>
+  .authors {
+    font-size: var(--step--1);
+    color: var(--color-text-muted);
+    line-height: 1.5;
+  }
+
+  .authors__with {
+    color: var(--color-text-subtle);
+  }
+
+  .authors__self {
+    color: var(--color-text);
+    font-weight: 600;
+  }
+</style>

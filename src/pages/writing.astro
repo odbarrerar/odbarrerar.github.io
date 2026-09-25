@@ -1,0 +1,204 @@
+---
+import PageLayout from '../layouts/PageLayout.astro';
+import MediaItem from '../components/MediaItem.astro';
+import Icon from '../components/Icon.astro';
+import { media, profile } from '../lib/data';
+import { getPapers, paperUrl } from '../lib/research';
+
+const papers = await getPapers();
+const paperRef = new Map(papers.map((p) => [p.id, { title: p.data.title, href: paperUrl(p) }]));
+
+const byDate = (a: (typeof media)[number], b: (typeof media)[number]) => (b.date ?? '').localeCompare(a.date ?? '');
+
+const groups = [
+  {
+    id: 'blog',
+    title: 'Democracy Challenged blog',
+    intro: 'Posts on the blog of the ERC-funded Democracy Challenged project.',
+    items: media.filter((m) => m.type === 'blog').sort(byDate),
+    hideOutlet: true,
+  },
+  {
+    id: 'commentary',
+    title: 'Commentary',
+    intro: 'Opinion pieces and essays in the press.',
+    items: media.filter((m) => m.type === 'commentary').sort(byDate),
+  },
+  {
+    id: 'policy',
+    title: 'Policy columns',
+    intro: 'Research summaries for policy audiences.',
+    items: media.filter((m) => m.type === 'policy').sort(byDate),
+  },
+  {
+    id: 'coverage',
+    title: 'Research coverage',
+    intro: 'Articles, summaries and interviews about my research.',
+    items: media.filter((m) => m.type === 'coverage').sort(byDate),
+  },
+].filter((g) => g.items.length > 0);
+
+const profiles = media.filter((m) => m.type === 'profile');
+---
+
+<PageLayout
+  title="Writing & Media"
+  heading="Writing & media"
+  intro={profile.page_intros.writing}
+  description={`Blog posts, commentary and media coverage by and about ${profile.name}, in English and Spanish.`}
+>
+  <nav slot="header" class="jump" aria-label="On this page">
+    <ul role="list">
+      {
+        groups.map((g) => (
+          <li>
+            <a href={`#${g.id}`}>
+              {g.title} <span class="num">{g.items.length}</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </nav>
+
+  <div class="container writing">
+    {
+      groups.map((g) => (
+        <section class="wgroup" id={g.id} aria-labelledby={`h-${g.id}`}>
+          <header class="wgroup__head">
+            <h2 id={`h-${g.id}`} class="wgroup__title">{g.title}</h2>
+            <p class="wgroup__intro">{g.intro}</p>
+          </header>
+          <div class="wgroup__list">
+            {g.items.map((m) => (
+              <MediaItem item={m} hideOutlet={'hideOutlet' in g && g.hideOutlet} paper={m.paper ? paperRef.get(m.paper) : undefined} />
+            ))}
+          </div>
+        </section>
+      ))
+    }
+
+    {
+      profiles.length > 0 && (
+        <section class="wgroup" aria-labelledby="h-more">
+          <header class="wgroup__head">
+            <h2 id="h-more" class="wgroup__title">More</h2>
+            <p class="wgroup__intro">Author pages with further articles.</p>
+          </header>
+          <ul class="more" role="list">
+            {profiles.map((m) => (
+              <li>
+                <a href={m.url}>
+                  <span>
+                    {m.title}
+                    <span class="more__outlet">{m.outlet}</span>
+                  </span>
+                  <Icon name="external" />
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+  </div>
+</PageLayout>
+
+<style>
+  .jump ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1.5rem;
+    margin: 0;
+    padding: 0;
+  }
+
+  .jump a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45em;
+    min-height: 2.5rem;
+    font-size: var(--step--1);
+    font-weight: 560;
+    color: var(--color-text);
+    text-decoration: none;
+    border-bottom: 1px solid var(--color-border-strong);
+  }
+
+  .jump a:hover {
+    color: var(--color-accent);
+    border-color: var(--color-accent);
+  }
+
+  .jump .num {
+    color: var(--color-text-subtle);
+    font-weight: 400;
+  }
+
+  .writing {
+    padding-top: var(--space-xl);
+    padding-bottom: var(--space-section);
+  }
+
+  .wgroup {
+    display: grid;
+    gap: var(--space-m) var(--space-xl);
+  }
+
+  .wgroup + .wgroup {
+    margin-top: var(--space-2xl);
+  }
+
+  @media (min-width: 64em) {
+    .wgroup {
+      grid-template-columns: 16rem minmax(0, 1fr);
+    }
+
+    .wgroup__head {
+      position: sticky;
+      top: calc(var(--header-h) + 1.5rem);
+      align-self: start;
+    }
+  }
+
+  .wgroup__title {
+    font-size: var(--step-2);
+  }
+
+  .wgroup__intro {
+    margin-top: 0.6rem;
+    font-size: var(--step--1);
+    color: var(--color-text-muted);
+  }
+
+  .more {
+    margin: 0;
+    padding: 0;
+  }
+
+  .more a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-block: 1.1rem;
+    border-top: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    color: var(--color-text);
+    text-decoration: none;
+  }
+
+  .more a:hover {
+    color: var(--color-accent);
+  }
+
+  .more__outlet {
+    display: block;
+    margin-top: 0.2rem;
+    font-family: var(--font-text);
+    font-size: var(--step--1);
+    color: var(--color-text-subtle);
+  }
+</style>

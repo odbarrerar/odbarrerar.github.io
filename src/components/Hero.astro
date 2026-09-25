@@ -1,0 +1,252 @@
+---
+/** Homepage hero: portrait, name, position, short statement, key links. */
+import Button from './Button.astro';
+import Icon from './Icon.astro';
+import Portrait from './Portrait.astro';
+import { profile } from '../lib/data';
+---
+
+<section class="hero" aria-labelledby="hero-title">
+  <div class="container hero__grid">
+    <div class="hero__portrait">
+      <Portrait loading="eager" sizes="(min-width: 64em) 21rem, (min-width: 40em) 34vw, 7.5rem" />
+    </div>
+
+    <div class="hero__text">
+      <p class="eyebrow hero__eyebrow">{profile.position}</p>
+      <h1 id="hero-title" class="hero__name">{profile.name}</h1>
+
+      <p class="hero__affiliation">
+        <a href={profile.institution_url ?? profile.links.ucd}>{profile.institution}</a>
+        <span class="hero__dash" aria-hidden="true">—</span>
+        <span>{profile.department.replace(/\s*\(.*\)$/, '')}</span>
+      </p>
+      <p class="hero__projects">
+        {
+          profile.project && (
+            <span>
+              ERC project <a href={profile.project.url}>{profile.project.name}</a>
+            </span>
+          )
+        }
+        {
+          profile.other_affiliations.map((a) => (
+            <span>
+              {a.role}, {a.url ? <a href={a.url}>{a.organisation}</a> : a.organisation}
+            </span>
+          ))
+        }
+      </p>
+
+      <p class="hero__statement">{profile.statement}</p>
+
+      <div class="hero__actions">
+        <Button href="/research/" variant="primary" iconRight="arrow-right">View research</Button>
+        <Button href={profile.cv.url} variant="secondary" icon="download">Download CV</Button>
+      </div>
+
+      <ul class="hero__links" role="list" aria-label="Profiles and contact">
+        {
+          profile.links.scholar && (
+            <li>
+              <a href={profile.links.scholar}>
+                <Icon name="scholar" /> Google Scholar
+              </a>
+            </li>
+          )
+        }
+        {
+          profile.links.github && (
+            <li>
+              <a href={profile.links.github}>
+                <Icon name="repo" /> GitHub
+              </a>
+            </li>
+          )
+        }
+        <li>
+          <a href="/contact/">
+            <Icon name="mail" /> Contact
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    padding-top: clamp(1.75rem, 0.5rem + 5vw, 5.5rem);
+    padding-bottom: clamp(3rem, 1.8rem + 5vw, 6.5rem);
+  }
+
+  .hero__grid {
+    display: grid;
+    grid-template-columns: 7.5rem minmax(0, 1fr);
+    grid-template-areas:
+      'portrait eyebrow'
+      'text text';
+    column-gap: 1.25rem;
+    align-items: end;
+  }
+
+  .hero__portrait {
+    grid-area: portrait;
+  }
+
+  .hero__text {
+    display: contents;
+  }
+
+  .hero__eyebrow {
+    grid-area: eyebrow;
+    align-self: end;
+  }
+
+  .hero__name,
+  .hero__affiliation,
+  .hero__projects,
+  .hero__statement,
+  .hero__actions,
+  .hero__links {
+    grid-column: 1 / -1;
+  }
+
+  @media (min-width: 40em) {
+    .hero__grid {
+      grid-template-columns: minmax(12rem, 34%) minmax(0, 1fr);
+      grid-template-areas: 'portrait text';
+      column-gap: clamp(2rem, 5vw, 5rem);
+      align-items: center;
+    }
+
+    .hero__text {
+      display: block;
+      grid-area: text;
+    }
+  }
+
+  @media (min-width: 64em) {
+    .hero__grid {
+      grid-template-columns: 21rem minmax(0, 1fr);
+    }
+  }
+
+  .hero__name {
+    margin-top: 1rem;
+    font-size: var(--step-5);
+    font-weight: 380;
+    line-height: 1.02;
+    letter-spacing: -0.028em;
+    max-width: 14ch;
+  }
+
+  @media (min-width: 40em) {
+    .hero__name {
+      margin-top: 0.9rem;
+    }
+  }
+
+  .hero__affiliation {
+    margin-top: 1.4rem;
+    font-size: var(--step-1);
+    line-height: 1.4;
+    color: var(--color-text);
+  }
+
+  .hero__affiliation a {
+    color: inherit;
+    text-decoration-color: var(--color-border-strong);
+  }
+
+  .hero__affiliation a:hover {
+    color: var(--color-accent);
+  }
+
+  .hero__dash {
+    margin-inline: 0.35em;
+    color: var(--color-text-subtle);
+  }
+
+  .hero__projects {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    margin-top: 0.6rem;
+    font-size: var(--step--1);
+    color: var(--color-text-muted);
+  }
+
+  @media (min-width: 64em) {
+    .hero__projects {
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 0.2rem 0;
+    }
+
+    .hero__projects span + span::before {
+      content: '·';
+      margin-inline: 0.75rem;
+      color: var(--color-text-subtle);
+    }
+  }
+
+  .hero__projects a {
+    color: inherit;
+    text-decoration-color: var(--color-border-strong);
+  }
+
+  .hero__projects a:hover {
+    color: var(--color-accent);
+  }
+
+  .hero__statement {
+    margin-top: 1.6rem;
+    max-width: 41rem;
+    font-size: clamp(1.04rem, 0.98rem + 0.3vw, 1.19rem);
+    line-height: 1.6;
+    color: var(--color-text-muted);
+  }
+
+  .hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 2rem;
+  }
+
+  @media (max-width: 29.99em) {
+    .hero__actions :global(.btn) {
+      flex: 1 1 10rem;
+    }
+  }
+
+  .hero__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 1.4rem;
+    margin: 1rem 0 0;
+    padding: 0;
+  }
+
+  .hero__links a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45em;
+    min-height: 2.75rem;
+    font-size: var(--step--1);
+    font-weight: 540;
+    color: var(--color-text-muted);
+    text-decoration: none;
+  }
+
+  .hero__links a:hover {
+    color: var(--color-accent);
+  }
+
+  .hero__links :global(.icon) {
+    color: var(--color-accent);
+    width: 1.05em;
+    height: 1.05em;
+  }
+</style>

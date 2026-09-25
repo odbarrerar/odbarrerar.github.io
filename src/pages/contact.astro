@@ -1,0 +1,101 @@
+---
+import PageLayout from '../layouts/PageLayout.astro';
+import SocialLinks from '../components/SocialLinks.astro';
+import Icon from '../components/Icon.astro';
+import { profile } from '../lib/data';
+---
+
+<PageLayout
+  title="Contact"
+  heading="Contact"
+  intro="Email is the best way to reach me about research, collaborations, seminar invitations or media requests."
+  description={`Contact ${profile.name}, ${profile.position} at ${profile.department}, ${profile.institution}.`}
+>
+  <div class="container contact">
+    <section class="contact__main" aria-labelledby="h-email">
+      <h2 id="h-email" class="label">Email</h2>
+      <a class="contact__email" href={`mailto:${profile.email}`}>{profile.email}</a>
+
+      {
+        profile.office && (
+          <div class="contact__office">
+            <h2 class="label">Office</h2>
+            <address>
+              <Icon name="pin" />
+              <span>
+                {profile.office.split(', ').map((line, i, arr) => (
+                  <>
+                    {line}
+                    {i < arr.length - 1 && <br />}
+                  </>
+                ))}
+              </span>
+            </address>
+          </div>
+        )
+      }
+    </section>
+
+    <section class="contact__profiles" aria-labelledby="h-profiles">
+      <h2 id="h-profiles" class="label">Profiles</h2>
+      <SocialLinks
+        include={['ucd', 'scholar', 'github', 'x', 'bluesky', 'democracy_challenged', 'wid']}
+        variant="list"
+        label="Academic and social profiles"
+      />
+    </section>
+  </div>
+</PageLayout>
+
+<style>
+  .contact {
+    display: grid;
+    gap: var(--space-2xl) clamp(3rem, 6vw, 6rem);
+    padding-top: var(--space-xl);
+    padding-bottom: var(--space-section);
+  }
+
+  @media (min-width: 56em) {
+    .contact {
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+    }
+  }
+
+  .contact .label {
+    margin-bottom: 0.75rem;
+    font-family: var(--font-text);
+  }
+
+  .contact__email {
+    display: inline-block;
+    font-family: var(--font-display);
+    font-size: clamp(1.4rem, 0.9rem + 2.3vw, 2.6rem);
+    line-height: 1.15;
+    color: var(--color-text);
+    text-decoration-thickness: 1px;
+    text-decoration-color: var(--color-border-strong);
+    overflow-wrap: anywhere;
+  }
+
+  .contact__email:hover {
+    color: var(--color-accent);
+    text-decoration-color: currentColor;
+  }
+
+  .contact__office {
+    margin-top: var(--space-xl);
+  }
+
+  address {
+    display: flex;
+    gap: 0.75rem;
+    font-style: normal;
+    line-height: 1.6;
+    color: var(--color-text-muted);
+  }
+
+  address :global(.icon) {
+    margin-top: 0.3rem;
+    color: var(--color-accent);
+  }
+</style>

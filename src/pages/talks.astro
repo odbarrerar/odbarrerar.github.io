@@ -1,0 +1,173 @@
+---
+import PageLayout from '../layouts/PageLayout.astro';
+import EventCard from '../components/EventCard.astro';
+import FilterBar from '../components/FilterBar.astro';
+import { TALK_TYPES, profile, talks } from '../lib/data';
+import { getPapers, paperUrl } from '../lib/research';
+
+const today = new Date().toISOString().slice(0, 10);
+const currentYear = new Date().getFullYear();
+
+function isUpcoming(t: (typeof talks)[number]) {
+  const last = t.end_date ?? t.date;
+  if (last) return last.length === 10 ? last >= today : last >= today.slice(0, last.length);
+  return t.year > currentYear;
+}
+
+const upcoming = talks.filter(isUpcoming).sort((a, b) => (a.date ?? `${a.year}`).localeCompare(b.date ?? `${b.year}`));
+const past = talks.filter((t) => !isUpcoming(t));
+const years = [...new Set(past.map((t) => t.year))].sort((a, b) => b - a);
+
+const papers = await getPapers();
+const paperRef = new Map(papers.map((p) => [p.id, { title: p.data.title, href: paperUrl(p) }]));
+
+const countries = new Set(talks.map((t) => t.country).filter(Boolean));
+const since = Math.min(...talks.map((t) => t.year));
+const typeOptions = TALK_TYPES.map((type) => ({
+  value: type,
+  label: `${type}s`,
+  count: talks.filter((t) => t.type === type).length,
+})).filter((o) => o.count > 0);
+---
+
+<PageLayout
+  title="Talks & Events"
+  heading="Talks & events"
+  intro={profile.page_intros.talks}
+  description={`Seminars, conferences and workshops where ${profile.name} has presented research, from ${since} to today.`}
+>
+  <dl slot="header" class="stats">
+    <div><dt>Presentations</dt><dd class="num">{talks.length}</dd></div>
+    <div><dt>Countries</dt><dd class="num">{countries.size}</dd></div>
+    <div><dt>Since</dt><dd class="num">{since}</dd></div>
+  </dl>
+
+  <div class="container talks" data-filter-scope data-filter-noun="talks">
+    <div class="talks__toolbar">
+      <FilterBar label="Type" filterKey="type" options={typeOptions} id="filter-type" />
+      <p class="talks__count js-only" data-filter-count aria-live="polite"></p>
+    </div>
+
+    {
+      upcoming.length > 0 && (
+        <section class="year year--upcoming" aria-labelledby="h-upcoming" data-filter-section>
+          <h2 id="h-upcoming" class="year__label">Upcoming</h2>
+          <ol class="year__list" role="list">
+            {upcoming.map((t) => (
+              <EventCard talk={t} upcoming showYear paper={t.paper ? paperRef.get(t.paper) : undefined} />
+            ))}
+          </ol>
+        </section>
+      )
+    }
+
+    {
+      years.map((year) => (
+        <section class="year" aria-labelledby={`h-${year}`} data-filter-section>
+          <h2 id={`h-${year}`} class="year__label num">
+            {year}
+          </h2>
+          <ol class="year__list" role="list">
+            {past
+              .filter((t) => t.year === year)
+              .map((t) => (
+                <EventCard talk={t} paper={t.paper ? paperRef.get(t.paper) : undefined} />
+              ))}
+          </ol>
+        </section>
+      ))
+    }
+    <p class="talks__empty" data-filter-empty hidden>No talks of this type.</p>
+  </div>
+</PageLayout>
+
+<script>
+  import '../scripts/filters';
+</script>
+
+<style>
+  .stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem clamp(2rem, 5vw, 4rem);
+    margin: 0;
+  }
+
+  .stats dt {
+    font-size: var(--step--2);
+    font-weight: 600;
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--color-text-subtle);
+  }
+
+  .stats dd {
+    margin: 0.2rem 0 0;
+    font-family: var(--font-display);
+    font-size: var(--step-3);
+    line-height: 1.1;
+  }
+
+  .talks {
+    padding-top: var(--space-xl);
+    padding-bottom: var(--space-section);
+  }
+
+  .talks__toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem 2rem;
+    margin-bottom: var(--space-xl);
+  }
+
+  .talks__count {
+    font-size: var(--step--1);
+    color: var(--color-text-subtle);
+  }
+
+  .year {
+    display: grid;
+    gap: 0 var(--space-xl);
+  }
+
+  .year + .year {
+    margin-top: var(--space-xl);
+  }
+
+  @media (min-width: 64em) {
+    .year {
+      grid-template-columns: 9rem minmax(0, 1fr);
+    }
+  }
+
+  .year__label {
+    margin-bottom: 0.5rem;
+    font-size: var(--step-3);
+    font-weight: 400;
+    color: var(--color-text);
+  }
+
+  @media (min-width: 64em) {
+    .year__label {
+      position: sticky;
+      top: calc(var(--header-h) + 1rem);
+      align-self: start;
+      padding-top: 0.8rem;
+    }
+  }
+
+  .year--upcoming .year__label {
+    color: var(--color-accent);
+  }
+
+  .year__list {
+    margin: 0;
+    padding: 0;
+  }
+
+  .talks__empty {
+    color: var(--color-text-muted);
+  }
+</style>

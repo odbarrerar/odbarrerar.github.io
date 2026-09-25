@@ -1,0 +1,311 @@
+# ──────────────────────────────────────────────────────────────────────────
+#  TALKS, SEMINARS & CONFERENCES
+#
+#  To add a talk, copy an entry, paste it at the top and edit it.
+#
+#  Required:  year, event, city, country, type
+#  Optional:  date / end_date (YYYY-MM-DD; used to mark upcoming events),
+#             month (1–12, when only the month is known),
+#             host, url (event page), online (true/false), paper (the file
+#             name of a paper in src/content/research, without .md),
+#             slides (link), note
+#
+#  type is one of: Conference, Seminar, Workshop, Webinar, Lecture, Meeting
+#  Entries with a date in the future are shown as "Upcoming".
+# ──────────────────────────────────────────────────────────────────────────
+
+# ── 2026 ──────────────────────────────────────────────────────────────────
+- year: 2026
+  date: 2026-09-03
+  end_date: 2026-09-06
+  event: 122nd APSA Annual Meeting
+  host: American Political Science Association
+  city: Boston, MA
+  country: United States
+  type: Conference
+  url: https://connect.apsanet.org/apsa2026/
+
+- year: 2026
+  event: 38th Annual SASE Conference
+  host: Sciences Po Bordeaux
+  city: Bordeaux
+  country: France
+  type: Conference
+  url: https://sase.org/events/2026-bordeaux/
+
+- year: 2026
+  event: Council for European Studies Conference
+  host: University College Dublin
+  city: Dublin
+  country: Ireland
+  type: Conference
+  url: https://councilforeuropeanstudies.org/conferences/upcoming-conferences/
+
+- year: 2026
+  event: World Inequality Conference
+  host: Paris School of Economics
+  city: Paris
+  country: France
+  type: Conference
+  url: https://inequalitylab.world/en/event/world-inequality-conference-2026/
+
+- year: 2026
+  date: 2026-03-26
+  event: Webinar Economía
+  host: Universidad del Rosario
+  city: Bogotá
+  country: Colombia
+  type: Webinar
+  online: true
+  note: 9:00 am, Bogotá time
+
+- year: 2026
+  event: Geary Institute for Public Policy Seminar Series
+  host: University College Dublin
+  city: Dublin
+  country: Ireland
+  type: Seminar
+  url: https://www.ucd.ie/geary/newsevents/seminarseries/20252026/
+
+- year: 2026
+  event: World Inequality Lab Seminar
+  host: Paris School of Economics
+  city: Paris
+  country: France
+  type: Seminar
+
+# ── 2025 ──────────────────────────────────────────────────────────────────
+- year: 2025
+  event: Lunch Seminar, Department of Economics, History and Society (DEHES)
+  host: University of Geneva
+  city: Geneva
+  country: Switzerland
+  type: Seminar
+
+- year: 2025
+  event: 12th Annual Mannheim Taxation Conference
+  host: Leibniz ScienceCampus Mannheim Taxation
+  city: Mannheim
+  country: Germany
+  type: Conference
+
+- year: 2025
+  event: Mannheim Taxation on Campus meeting
+  host: ZEW – Leibniz Centre for European Economic Research
+  city: Mannheim
+  country: Germany
+  type: Meeting
+
+- year: 2025
+  event: Public Economics Seminar
+  host: ZEW – Leibniz Centre for European Economic Research
+  city: Mannheim
+  country: Germany
+  type: Seminar
+
+- year: 2025
+  event: 11th Conference of the Society for the Study of Economic Inequality (ECINEQ)
+  host: World Bank Group & The George Washington University
+  city: Washington, DC
+  country: United States
+  type: Conference
+
+- year: 2025
+  month: 5
+  event: SPIRe Research Seminar Series
+  host: School of Politics and International Relations, University College Dublin
+  city: Dublin
+  country: Ireland
+  type: Seminar
+  paper: confirmation-bias-political-polarization
+  slides: https://doi.org/10.5281/zenodo.15622695
+
+- year: 2025
+  event: Behavioural Science and Policy Group Seminar
+  host: University College Dublin
+  city: Dublin
+  country: Ireland
+  type: Seminar
+
+# ── 2024 ──────────────────────────────────────────────────────────────────
+- year: 2024
+  event: Public Economics Seminar
+  host: ZEW – Leibniz Centre for European Economic Research
+  city: Mannheim
+  country: Germany
+  type: Seminar
+
+- year: 2024
+  event: Behavioural Science and Policy Group Seminar
+  host: University College Dublin
+  city: Dublin
+  country: Ireland
+  type: Seminar
+
+- year: 2024
+  event: In_equality Conference 2024
+  host: University of Konstanz
+  city: Konstanz
+  country: Germany
+  type: Conference
+
+# ── 2023 ──────────────────────────────────────────────────────────────────
+- year: 2023
+  event: Workshop on Unveiling Wealth and Income Inequalities
+  host: German Institute for Economic Research (DIW Berlin)
+  city: Berlin
+  country: Germany
+  type: Workshop
+
+- year: 2023
+  event: THEMA Seminar (Théorie Économique, Modélisation et Applications)
+  host: CY Cergy Paris Université
+  city: Cergy-Pontoise
+  country: France
+  type: Seminar
+
+- year: 2023
+  event: DIAL Seminar
+  host: Université Paris Dauphine
+  city: Paris
+  country: France
+  type: Seminar
+
+- year: 2023
+  event: ENS Applied Seminar
+  host: École Normale Supérieure de Lyon
+  city: Lyon
+  country: France
+  type: Seminar
+
+# ── 2022 ──────────────────────────────────────────────────────────────────
+- year: 2022
+  event: Research Seminar
+  host: Centre d'Études et de Recherches sur le Développement International (CERDI)
+  city: Clermont-Ferrand
+  country: France
+  type: Seminar
+
+- year: 2022
+  event: Seminario CID
+  host: CID, Universidad Nacional de Colombia
+  city: Bogotá
+  country: Colombia
+  type: Seminar
+
+- year: 2022
+  event: Applied Economics Lunch Seminar
+  host: Paris School of Economics
+  city: Paris
+  country: France
+  type: Seminar
+
+- year: 2022
+  event: Cátedra París–Francia
+  host: Ministerio de Relaciones & Universidad Nacional de Colombia
+  city: Bogotá
+  country: Colombia
+  type: Lecture
+
+- year: 2022
+  event: Seminario GEPPC
+  host: Grupo de Investigación en Economía, Políticas Públicas y Ciudadanía
+  city: Bogotá
+  country: Colombia
+  type: Seminar
+
+- year: 2022
+  event: Seminario CID
+  host: Facultad de Economía, Universidad Nacional de Colombia
+  city: Bogotá
+  country: Colombia
+  type: Seminar
+
+# ── 2021 ──────────────────────────────────────────────────────────────────
+- year: 2021
+  event: Virtual Inequality Brownbag (VIB) series
+  host: CID (Michigan University), PSE, LSE, WZB Berlin Social Science Center, University of Amsterdam and European University Institute
+  city: Online
+  country: ""
+  type: Webinar
+  online: true
+
+- year: 2021
+  event: Behaviors and Preferences Seminar
+  host: Paris School of Economics
+  city: Paris
+  country: France
+  type: Seminar
+
+# ── 2020 ──────────────────────────────────────────────────────────────────
+- year: 2020
+  event: 10th Annual International Conference on Immigration in OECD Countries
+  host: Organisation for Economic Co-operation and Development (OECD)
+  city: Paris
+  country: France
+  type: Conference
+
+- year: 2020
+  event: DIAL Seminar
+  host: Université Paris Dauphine
+  city: Paris
+  country: France
+  type: Seminar
+
+# ── 2019 ──────────────────────────────────────────────────────────────────
+- year: 2019
+  event: "Attitudes towards migrants and minorities: The role of (real or imagined) statistical information"
+  host: Institut national d'études démographiques (INED)
+  city: Paris
+  country: France
+  type: Workshop
+
+- year: 2019
+  event: CEPII Seminar
+  host: Centre d'études prospectives et d'informations internationales (CEPII)
+  city: Paris
+  country: France
+  type: Seminar
+
+- year: 2019
+  event: VIII NCID Research Workshop on Development Economics
+  host: Universidad de Navarra
+  city: Madrid
+  country: Spain
+  type: Workshop
+
+- year: 2019
+  event: Casual Friday Development Seminar
+  host: Paris School of Economics
+  city: Paris
+  country: France
+  type: Seminar
+
+# ── 2018 ──────────────────────────────────────────────────────────────────
+- year: 2018
+  event: 14th HiCN Annual Workshop
+  host: IDS–EAFIT
+  city: Medellín
+  country: Colombia
+  type: Workshop
+
+- year: 2018
+  event: Seminario CEDE
+  host: Universidad de los Andes
+  city: Bogotá
+  country: Colombia
+  type: Seminar
+
+- year: 2018
+  event: Seminario Interno de Economía
+  host: Universidad del Rosario
+  city: Bogotá
+  country: Colombia
+  type: Seminar
+
+- year: 2018
+  event: Seminario Interuniversitario Desarrollo Productivo Argentino (SIDPA)
+  host: Universidad de San Martín & Universidad de Buenos Aires
+  city: Buenos Aires
+  country: Argentina
+  type: Seminar

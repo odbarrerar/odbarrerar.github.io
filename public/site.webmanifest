@@ -1,0 +1,14 @@
+{
+  "name": "Oscar Barrera Rodríguez",
+  "short_name": "O. Barrera",
+  "description": "Academic website of Oscar Barrera Rodríguez, Senior Research Fellow at University College Dublin.",
+  "start_url": "/",
+  "display": "browser",
+  "background_color": "#faf8f3",
+  "theme_color": "#8a2a1d",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

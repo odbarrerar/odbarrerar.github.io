@@ -1,0 +1,42 @@
+# Quality checks: type-check, build and verify internal links on every pull
+# request and push; request every external link once a month (and on demand)
+# so that dead links are noticed.
+name: Site checks
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: '0 6 1 * *' # 1st of every month, 06:00 UTC
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type-check content and components
+        run: npm run check
+
+      - name: Build
+        run: npm run build
+
+      - name: Check internal links and anchors
+        run: npm run qa:links
+
+      - name: Check external links
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        run: npm run qa:links -- --external

@@ -1,0 +1,86 @@
+---
+/** Desktop navigation (hidden on small screens, where MobileMenu takes over). */
+import { NAV, isCurrent } from '../lib/nav';
+
+const pathname = Astro.url.pathname;
+---
+
+<nav class="nav" aria-label="Main">
+  <ul class="nav__list" role="list">
+    {
+      NAV.map((item) => (
+        <li>
+          <a
+            href={item.href}
+            class="nav__link"
+            aria-current={isCurrent(pathname, item.href) ? 'page' : undefined}
+          >
+            {item.label}
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</nav>
+
+<style>
+  .nav {
+    display: none;
+  }
+
+  @media (min-width: 68em) {
+    .nav {
+      display: block;
+    }
+  }
+
+  .nav__list {
+    display: flex;
+    align-items: center;
+    gap: clamp(0.9rem, 0.2rem + 1.1vw, 1.45rem);
+    margin: 0;
+    padding: 0;
+  }
+
+  .nav__link {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    font-size: var(--step--1);
+    font-weight: 520;
+    letter-spacing: 0.005em;
+    color: var(--color-text-muted);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .nav__link::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0.55rem;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform var(--dur) var(--ease);
+  }
+
+  .nav__link:hover {
+    color: var(--color-text);
+  }
+
+  .nav__link:hover::after {
+    transform: scaleX(1);
+  }
+
+  .nav__link[aria-current='page'] {
+    color: var(--color-accent);
+  }
+
+  .nav__link[aria-current='page']::after {
+    transform: scaleX(1);
+  }
+</style>

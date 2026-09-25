@@ -1,0 +1,101 @@
+---
+/**
+ * Small label for statuses, themes, event types and languages.
+ * Status tags carry a shape marker (filled, half, outline square) so the
+ * status is never communicated by colour alone.
+ */
+interface Props {
+  variant?: 'plain' | 'status' | 'topic' | 'lang' | 'accent';
+  /** For status tags: which marker to draw. */
+  marker?: 'published' | 'working' | 'progress' | 'upcoming';
+  href?: string;
+  class?: string;
+  title?: string;
+}
+
+const { variant = 'plain', marker, href, class: className, title } = Astro.props;
+const Tag = href ? 'a' : 'span';
+---
+
+<Tag
+  href={href}
+  class:list={['tag', `tag--${variant}`, marker && `tag--${marker}`, className]}
+  title={title}
+>
+  {marker && <span class="tag__marker" aria-hidden="true" />}
+  <slot />
+</Tag>
+
+<style>
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45em;
+    font-family: var(--font-text);
+    font-size: var(--step--2);
+    font-weight: 560;
+    letter-spacing: 0.055em;
+    text-transform: uppercase;
+    line-height: 1.2;
+    color: var(--color-text-subtle);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  a.tag:hover {
+    color: var(--color-accent);
+  }
+
+  .tag--topic {
+    padding: 0.28em 0.6em;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-s);
+    letter-spacing: 0.04em;
+    text-transform: none;
+    font-weight: 500;
+    font-size: var(--step--2);
+    color: var(--color-text-muted);
+  }
+
+  a.tag--topic:hover {
+    border-color: var(--color-accent);
+  }
+
+  .tag--lang {
+    padding: 0.15em 0.4em;
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-s);
+    font-size: 0.66rem;
+    letter-spacing: 0.08em;
+  }
+
+  .tag--accent,
+  .tag--status {
+    color: var(--color-accent);
+  }
+
+  .tag__marker {
+    width: 0.62em;
+    height: 0.62em;
+    border: 1.5px solid currentColor;
+    border-radius: 1px;
+    flex-shrink: 0;
+  }
+
+  .tag--published .tag__marker {
+    background: currentColor;
+  }
+
+  .tag--working .tag__marker {
+    background: linear-gradient(135deg, currentColor 50%, transparent 50%);
+  }
+
+  .tag--progress .tag__marker {
+    background: transparent;
+  }
+
+  .tag--upcoming .tag__marker {
+    border-radius: 50%;
+    background: currentColor;
+  }
+</style>

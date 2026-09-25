@@ -1,0 +1,42 @@
+# ──────────────────────────────────────────────────────────────────────────
+#  RESEARCH THEMES
+#
+#  The themes shown on the homepage and used to filter papers.
+#  A paper joins a theme by listing the theme's `id` under `topics:` in its
+#  Markdown file (src/content/research/*.md). The order here is the display
+#  order. Changing an `id` requires updating the papers that use it.
+# ──────────────────────────────────────────────────────────────────────────
+
+- id: taxation
+  title: Taxation, corporate power and wealth
+  short: Taxation & wealth
+  description: >-
+    Corporate tax erosion, profit concentration among large corporate groups, and
+    the role of corporate income taxation in shaping market power and wealth
+    concentration. This is the focus of my work in the ERC-funded Democracy
+    Challenged project.
+
+- id: information
+  title: Information, beliefs and disinformation
+  short: Information & beliefs
+  description: >-
+    Survey experiments on how people process political and economic information:
+    the persuasiveness of "alternative facts" and the limits of fact-checking,
+    confirmation bias in news consumption, and how information about the income
+    sources of top earners changes attitudes toward the rich.
+
+- id: cleavages
+  title: Political cleavages, conflict and institutions
+  short: Cleavages & conflict
+  description: >-
+    The social structure of the vote in six Latin American democracies since the
+    1950s, and political influence on homicide reporting in conflict-affected
+    Colombia.
+
+- id: development
+  title: Migration, development and early childhood
+  short: Migration & development
+  description: >-
+    How immigrants and their native-born children shape native attitudes toward
+    immigrants in Europe, and a field experiment on text messages to parents and
+    early childhood development in rural Nicaragua.

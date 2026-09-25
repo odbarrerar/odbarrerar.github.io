@@ -1,0 +1,557 @@
+---
+import { render } from 'astro:content';
+import { Image } from 'astro:assets';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import AuthorList from '../../components/AuthorList.astro';
+import PaperLinks from '../../components/PaperLinks.astro';
+import CitationBlock from '../../components/CitationBlock.astro';
+import Tag from '../../components/Tag.astro';
+import Icon from '../../components/Icon.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import { getCollection } from 'astro:content';
+import { code, media as mediaList, talks } from '../../lib/data';
+import {
+  STATUS_LABEL,
+  doiUrl,
+  getPapers,
+  groupOf,
+  paperUrl,
+  themeTitles,
+  type Paper,
+} from '../../lib/research';
+import { formatPartialDate, plainText, truncate } from '../../lib/format';
+import { scholarlyArticleSchema } from '../../lib/seo';
+
+export async function getStaticPaths() {
+  const papers = await getPapers();
+  return papers.map((paper) => ({ params: { slug: paper.id }, props: { paper } }));
+}
+
+interface Props {
+  paper: Paper;
+}
+
+const { paper } = Astro.props;
+const d = paper.data;
+const { Content } = await render(paper);
+const hasAbstract = !!paper.body?.trim();
+const norm = (t: string) => t.replace(/[“”"'’]/g, '').replace(/\s+/g, ' ').trim().toLowerCase();
+// Skip the question box when the abstract already opens with the same question
+const showQuestion = !!d.question && !(hasAbstract && norm(paper.body!).startsWith(norm(d.question).slice(0, 60)));
+
+const site = (Astro.site?.toString() ?? '').replace(/\/$/, '');
+const url = `${site}${paperUrl(paper)}`;
+const group = groupOf(d.status);
+const themes = themeTitles(paper);
+
+// Related content from other files
+const relatedMedia = [
+  ...d.media.map((m) => ({ ...m, source: 'paper' as const })),
+  ...mediaList
+    .filter((m) => m.paper === paper.id && !d.media.some((x) => x.url === m.url))
+    .map((m) => ({ title: m.title, outlet: m.outlet, url: m.url, date: m.date, source: 'media' as const })),
+].sort((a, b) => (b.date ?? '').localeCompare(a.date ?? ''));
+const relatedCode = code.filter((c) => c.paper === paper.id);
+const relatedTalks = talks.filter((t) => t.paper === paper.id);
+const relatedNotes = (await getCollection('notes', ({ data }) => !data.draft && data.related_paper === paper.id));
+
+// Other papers in the same themes
+const all = await getPapers();
+const more = all
+  .filter((p) => p.id !== paper.id && p.data.topics.some((t) => d.topics.includes(t)))
+  .slice(0, 3);
+
+const crumbs = [
+  { name: 'Home', href: '/' },
+  { name: 'Research', href: '/research/' },
+  { name: d.title, href: paperUrl(paper) },
+];
+
+const description = truncate(plainText(d.summary), 158);
+
+// Google Scholar (Highwire Press) meta tags
+const pubDate = (d.date ?? (d.year ? String(d.year) : '')).replace(/-/g, '/');
+const firstPage = d.pages && /^\d+$/.test(d.pages) ? d.pages : undefined;
+---
+
+<BaseLayout title={d.title} description={description} type="article" breadcrumbs={crumbs} jsonLd={[scholarlyArticleSchema(paper, site, url)]}>
+  <Fragment slot="head">
+    <meta name="citation_title" content={d.title} />
+    {d.authors.map((a) => <meta name="citation_author" content={a} />)}
+    {pubDate && <meta name="citation_publication_date" content={pubDate} />}
+    {d.status !== 'book-chapter' && d.venue && <meta name="citation_journal_title" content={d.venue} />}
+    {d.status === 'book-chapter' && d.venue && <meta name="citation_inbook_title" content={d.venue} />}
+    {d.publisher && <meta name="citation_publisher" content={d.publisher} />}
+    {d.volume && <meta name="citation_volume" content={d.volume} />}
+    {d.issue && <meta name="citation_issue" content={d.issue} />}
+    {firstPage && <meta name="citation_firstpage" content={firstPage} />}
+    {d.doi && <meta name="citation_doi" content={d.doi} />}
+    {d.keywords.length > 0 && <meta name="citation_keywords" content={d.keywords.join('; ')} />}
+    <meta name="citation_abstract_html_url" content={url} />
+  </Fragment>
+
+  <article class="paper">
+    <header class="paper__header">
+      <div class="container">
+        <Breadcrumbs items={crumbs} />
+        <p class="paper__status">
+          <Tag variant="status" marker={group}>{STATUS_LABEL[d.status]}</Tag>
+          {d.year && <span class="num">{d.year}</span>}
+          {d.open_access && <span class="paper__oa"><Icon name="unlock" /> Open access</span>}
+        </p>
+        <h1 class="paper__title">{d.title}</h1>
+        <AuthorList authors={d.authors} mode="all" class="paper__authors" />
+
+        {
+          (d.venue || d.doi) && (
+            <p class="paper__venue">
+              {d.status === 'book-chapter' ? (
+                <>
+                  {d.chapter && <span>Chapter {d.chapter} in </span>}
+                  <cite>{d.venue}</cite>
+                  {d.book_editors && <span>, edited by {d.book_editors.join(', ')}</span>}
+                  {d.publisher && <span>. {d.publisher}</span>}
+                  {d.year && <span>, {d.year}</span>}.
+                </>
+              ) : (
+                <>
+                  <cite>{d.venue}</cite>
+                  {d.volume && <span class="num">, vol. {d.volume}</span>}
+                  {d.issue && <span class="num">, no. {d.issue}</span>}
+                  {d.pages && <span class="num">, {/^\d+$/.test(d.pages) || /^[a-z]+\d+$/i.test(d.pages) ? `article ${d.pages}` : `pp. ${d.pages}`}</span>}
+                  {d.date ? <span>, {formatPartialDate(d.date)}</span> : d.year && <span>, {d.year}</span>}.
+                </>
+              )}
+              {d.doi && (
+                <span class="paper__doi">
+                  DOI: <a href={doiUrl(d.doi)}>{d.doi}</a>
+                </span>
+              )}
+            </p>
+          )
+        }
+
+        <PaperLinks paper={paper} variant="full" class="paper__links" />
+      </div>
+    </header>
+
+    <div class="container paper__body">
+      <div class="paper__main">
+        {
+          showQuestion && (
+            <section class="paper__question" aria-labelledby="question-title">
+              <h2 id="question-title" class="label">Research question</h2>
+              <p>{d.question}</p>
+            </section>
+          )
+        }
+
+        <section aria-labelledby="abstract-title">
+          <h2 id="abstract-title" class="paper__h2">{hasAbstract ? 'Abstract' : 'Summary'}</h2>
+          {hasAbstract ? (
+            <div class="prose paper__abstract">
+              <Content />
+            </div>
+          ) : (
+            <p class="prose paper__abstract">{d.summary}</p>
+          )}
+        </section>
+
+        {
+          d.image && (
+            <figure class="paper__figure">
+              <Image src={d.image} alt={d.image_alt ?? ''} widths={[480, 800, 1200]} sizes="(min-width: 64em) 44rem, 100vw" />
+              {d.image_caption && <figcaption>{d.image_caption}</figcaption>}
+            </figure>
+          )
+        }
+
+        {
+          relatedMedia.length > 0 && (
+            <section id="coverage" aria-labelledby="coverage-title" class="paper__section">
+              <h2 id="coverage-title" class="paper__h2">Coverage and related writing</h2>
+              <ul class="related" role="list">
+                {relatedMedia.map((m) => (
+                  <li>
+                    <span class="related__meta">
+                      {m.outlet}
+                      {m.date && <> · <time datetime={m.date}>{formatPartialDate(m.date, 'short')}</time></>}
+                    </span>
+                    <a href={m.url}>{m.title}</a>
+                  </li>
+                ))}
+                {relatedNotes.map((n) => (
+                  <li>
+                    <span class="related__meta">Notes &amp; Ideas</span>
+                    <a href={`/notes/${n.id}/`}>{n.data.title}</a>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )
+        }
+
+        {
+          relatedTalks.length > 0 && (
+            <section aria-labelledby="talks-title" class="paper__section">
+              <h2 id="talks-title" class="paper__h2">Presented at</h2>
+              <ul class="related" role="list">
+                {relatedTalks.map((t) => (
+                  <li>
+                    <span class="related__meta num">{t.year}</span>
+                    <span>
+                      {t.url ? <a href={t.url}>{t.event}</a> : t.event}, {t.host ? `${t.host}, ` : ''}{t.city}
+                      {t.slides && (
+                        <>
+                          {' · '}
+                          <a href={t.slides}>Slides</a>
+                        </>
+                      )}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )
+        }
+
+        {
+          relatedCode.length > 0 && (
+            <section aria-labelledby="code-title" class="paper__section">
+              <h2 id="code-title" class="paper__h2">Code and data</h2>
+              <div class="paper__code">
+                {relatedCode.map((item) => (
+                  <ProjectCard item={item} />
+                ))}
+              </div>
+            </section>
+          )
+        }
+
+        {
+          d.status !== 'work-in-progress' && (
+            <section aria-labelledby="cite-title" class="paper__section">
+              <h2 id="cite-title" class="paper__h2">Cite this paper</h2>
+              <CitationBlock paper={paper} />
+            </section>
+          )
+        }
+      </div>
+
+      <aside class="paper__aside" aria-label="Paper details">
+        {
+          themes.length > 0 && (
+            <div class="facts">
+              <h2 class="label">Themes</h2>
+              <ul role="list" class="facts__tags">
+                {themes.map((t) => (
+                  <li>
+                    <Tag variant="topic" href={`/research/?theme=${t.id}`}>{t.short}</Tag>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )
+        }
+        {
+          d.keywords.length > 0 && (
+            <div class="facts">
+              <h2 class="label">Keywords</h2>
+              <p>{d.keywords.join(' · ')}</p>
+            </div>
+          )
+        }
+        {
+          d.jel.length > 0 && (
+            <div class="facts">
+              <h2 class="label">
+                <abbr title="Journal of Economic Literature">JEL</abbr> codes
+              </h2>
+              <p class="num">{d.jel.join(', ')}</p>
+            </div>
+          )
+        }
+        {
+          d.versions.length > 0 && (
+            <div class="facts">
+              <h2 class="label">Earlier versions</h2>
+              <ul role="list" class="facts__list">
+                {d.versions.map((v) => (
+                  <li>{v.url ? <a href={v.url}>{v.label}</a> : v.label}</li>
+                ))}
+              </ul>
+            </div>
+          )
+        }
+        <div class="facts">
+          <h2 class="label">Contact</h2>
+          <p>
+            Questions about this paper: <a href="/contact/">get in touch</a>.
+          </p>
+        </div>
+      </aside>
+    </div>
+
+    {
+      more.length > 0 && (
+        <section class="more" aria-labelledby="more-title">
+          <div class="container">
+            <h2 id="more-title" class="paper__h2">Related research</h2>
+            <ul class="more__list" role="list">
+              {more.map((p) => (
+                <li>
+                  <Tag variant="status" marker={groupOf(p.data.status)}>
+                    {STATUS_LABEL[p.data.status]}
+                  </Tag>
+                  <a class="more__title" href={paperUrl(p)}>
+                    {p.data.title}
+                  </a>
+                </li>
+              ))}
+            </ul>
+            <p class="more__all">
+              <a href="/research/">
+                All research <Icon name="arrow-right" />
+              </a>
+            </p>
+          </div>
+        </section>
+      )
+    }
+  </article>
+</BaseLayout>
+
+<style>
+  .paper__header {
+    padding-top: clamp(2rem, 1.2rem + 3.5vw, 4.5rem);
+    padding-bottom: clamp(2rem, 1.4rem + 2.6vw, 3.5rem);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .paper__header :global(.breadcrumbs) {
+    margin-bottom: clamp(1.5rem, 1rem + 2vw, 2.5rem);
+  }
+
+  .paper__status {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 1rem;
+    font-size: var(--step--1);
+    color: var(--color-text-subtle);
+  }
+
+  .paper__oa {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35em;
+  }
+
+  .paper__title {
+    margin-top: 1rem;
+    max-width: 30ch;
+    font-size: var(--step-4);
+    font-weight: 400;
+    line-height: 1.08;
+  }
+
+  .paper__header :global(.paper__authors) {
+    margin-top: 1.25rem;
+    font-size: var(--step-0);
+  }
+
+  .paper__venue {
+    margin-top: 0.6rem;
+    max-width: 52rem;
+    color: var(--color-text-muted);
+    font-size: var(--step--1);
+  }
+
+  .paper__venue cite {
+    color: var(--color-text);
+  }
+
+  .paper__doi {
+    display: block;
+    margin-top: 0.3rem;
+    overflow-wrap: anywhere;
+  }
+
+  .paper__header :global(.paper__links) {
+    margin-top: var(--space-l);
+  }
+
+  .paper__body {
+    display: grid;
+    gap: var(--space-xl);
+    padding-top: var(--space-xl);
+    padding-bottom: var(--space-section);
+  }
+
+  @media (min-width: 64em) {
+    .paper__body {
+      grid-template-columns: minmax(0, 1fr) 17rem;
+      gap: clamp(3rem, 6vw, 6rem);
+    }
+  }
+
+  .paper__main {
+    min-width: 0;
+    max-width: 46rem;
+  }
+
+  .paper__question {
+    margin-bottom: var(--space-xl);
+    padding-left: 1.25rem;
+    border-left: 2px solid var(--color-accent);
+  }
+
+  .paper__question p {
+    margin-top: 0.5rem;
+    font-family: var(--font-display);
+    font-size: var(--step-2);
+    font-style: italic;
+    line-height: 1.35;
+  }
+
+  .paper__h2 {
+    margin-bottom: var(--space-s);
+    font-size: var(--step-2);
+  }
+
+  .paper__abstract {
+    font-size: var(--step-0);
+  }
+
+  .paper__section {
+    margin-top: var(--space-2xl);
+  }
+
+  .paper__figure {
+    margin-top: var(--space-xl);
+  }
+
+  .paper__figure figcaption {
+    margin-top: 0.6rem;
+    font-size: var(--step--1);
+    color: var(--color-text-muted);
+  }
+
+  .related {
+    margin: 0;
+    padding: 0;
+  }
+
+  .related li {
+    display: grid;
+    gap: 0.2rem;
+    padding-block: 0.9rem;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .related__meta {
+    font-size: var(--step--2);
+    font-weight: 560;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-text-subtle);
+  }
+
+  .paper__code {
+    display: grid;
+    gap: var(--space-m);
+  }
+
+  .paper__aside {
+    display: grid;
+    align-content: start;
+    gap: var(--space-l);
+  }
+
+  @media (min-width: 64em) {
+    .paper__aside {
+      position: sticky;
+      top: calc(var(--header-h) + 1.5rem);
+    }
+  }
+
+  .facts {
+    padding-top: 0.9rem;
+    border-top: 1px solid var(--color-border);
+    font-size: var(--step--1);
+    color: var(--color-text-muted);
+  }
+
+  .facts .label {
+    margin-bottom: 0.5rem;
+    font-family: var(--font-text);
+  }
+
+  .facts__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin: 0;
+    padding: 0;
+  }
+
+  .facts__list {
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.4rem;
+  }
+
+  .more {
+    padding-block: var(--space-2xl);
+    background: var(--color-bg-soft);
+    border-top: 1px solid var(--color-border);
+  }
+
+  .more__list {
+    display: grid;
+    gap: var(--space-l);
+    margin: var(--space-m) 0 0;
+    padding: 0;
+  }
+
+  @media (min-width: 56em) {
+    .more__list {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  .more__list li {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    padding-top: 1rem;
+    border-top: 2px solid var(--color-text);
+  }
+
+  .more__title {
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    line-height: 1.3;
+    color: var(--color-text);
+    text-decoration: none;
+  }
+
+  .more__title:hover {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+  }
+
+  .more__all {
+    margin-top: var(--space-l);
+  }
+
+  .more__all a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    font-weight: 560;
+  }
+</style>

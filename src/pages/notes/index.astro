@@ -1,0 +1,133 @@
+---
+import { getCollection } from 'astro:content';
+import PageLayout from '../../layouts/PageLayout.astro';
+import Icon from '../../components/Icon.astro';
+import { profile } from '../../lib/data';
+import { formatDate } from '../../lib/format';
+
+const notes = (await getCollection('notes', ({ data }) => !data.draft)).sort((a, b) => {
+  if (a.data.date && b.data.date) return b.data.date.getTime() - a.data.date.getTime();
+  if (a.data.date) return -1;
+  if (b.data.date) return 1;
+  return a.data.order - b.data.order;
+});
+---
+
+<PageLayout
+  title="Notes & Ideas"
+  heading="Notes & ideas"
+  intro={profile.page_intros.notes}
+  description={`Notes and essays by ${profile.name} connecting research with film, books, public debate and other interests.`}
+>
+  <div class="container notes">
+    <ol class="note-list" role="list">
+      {
+        notes.map((n, i) => (
+          <li class="note-item">
+            <p class="note-item__num num" aria-hidden="true">
+              {String(notes.length - i).padStart(2, '0')}
+            </p>
+            <div>
+              <h2 class="note-item__title">
+                <a href={`/notes/${n.id}/`}>{n.data.title}</a>
+              </h2>
+              {n.data.subtitle && <p class="note-item__subtitle">{n.data.subtitle}</p>}
+              <p class="note-item__desc">{n.data.description}</p>
+              <p class="note-item__meta">
+                {n.data.date && <time datetime={n.data.date.toISOString().slice(0, 10)}>{formatDate(n.data.date)}</time>}
+                {n.data.tags.length > 0 && <span>{n.data.tags.join(' · ')}</span>}
+              </p>
+              <a class="note-item__read" href={`/notes/${n.id}/`} aria-hidden="true" tabindex="-1">
+                Read <Icon name="arrow-right" />
+              </a>
+            </div>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</PageLayout>
+
+<style>
+  .notes {
+    padding-top: var(--space-xl);
+    padding-bottom: var(--space-section);
+  }
+
+  .note-list {
+    max-width: 52rem;
+    margin: 0;
+    padding: 0;
+  }
+
+  .note-item {
+    display: grid;
+    grid-template-columns: 3rem minmax(0, 1fr);
+    gap: var(--space-m);
+    padding-block: var(--space-xl);
+    border-top: 1px solid var(--color-border);
+  }
+
+  @media (min-width: 48em) {
+    .note-item {
+      grid-template-columns: 5rem minmax(0, 1fr);
+    }
+  }
+
+  .note-item__num {
+    font-family: var(--font-display);
+    font-size: var(--step-2);
+    font-style: italic;
+    color: var(--color-accent);
+  }
+
+  .note-item__title {
+    font-size: var(--step-3);
+    font-weight: 400;
+    line-height: 1.12;
+  }
+
+  .note-item__title a {
+    color: var(--color-text);
+    text-decoration: none;
+  }
+
+  .note-item__title a:hover {
+    color: var(--color-accent);
+  }
+
+  .note-item__subtitle {
+    margin-top: 0.4rem;
+    font-family: var(--font-display);
+    font-style: italic;
+    color: var(--color-text-muted);
+  }
+
+  .note-item__desc {
+    margin-top: 0.9rem;
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    line-height: 1.5;
+    color: var(--color-text-muted);
+    max-width: 40rem;
+  }
+
+  .note-item__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem 1.25rem;
+    margin-top: 0.9rem;
+    font-size: var(--step--1);
+    color: var(--color-text-subtle);
+  }
+
+  .note-item__read {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    margin-top: 0.9rem;
+    font-size: var(--step--1);
+    font-weight: 560;
+    text-decoration: none;
+  }
+</style>

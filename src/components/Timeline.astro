@@ -1,0 +1,102 @@
+---
+/**
+ * Two-column timeline: dates on the left, content on the right.
+ * Used by the CV, Teaching and About pages.
+ */
+export interface TimelineItem {
+  when?: string;
+  title: string;
+  href?: string;
+  subtitle?: string;
+  meta?: string;
+  detail?: string;
+  current?: boolean;
+}
+
+interface Props {
+  items: TimelineItem[];
+  compact?: boolean;
+  class?: string;
+}
+
+const { items, compact = false, class: className } = Astro.props;
+---
+
+<ol class:list={['timeline', compact && 'timeline--compact', className]} role="list">
+  {
+    items.map((item) => (
+      <li class:list={['timeline__item', item.current && 'timeline__item--current']}>
+        <p class="timeline__when tnum">{item.when ?? ''}</p>
+        <div class="timeline__body">
+          <p class="timeline__title">{item.href ? <a href={item.href}>{item.title}</a> : item.title}</p>
+          {item.subtitle && <p class="timeline__subtitle">{item.subtitle}</p>}
+          {item.meta && <p class="timeline__meta">{item.meta}</p>}
+          {item.detail && <p class="timeline__detail">{item.detail}</p>}
+        </div>
+      </li>
+    ))
+  }
+</ol>
+
+<style>
+  .timeline {
+    margin: 0;
+    padding: 0;
+  }
+
+  .timeline__item {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.15rem var(--space-l);
+    padding-block: 1.05rem;
+    border-top: 1px solid var(--color-border);
+  }
+
+  @media (min-width: 40em) {
+    .timeline__item {
+      grid-template-columns: 8.5rem minmax(0, 1fr);
+    }
+  }
+
+  .timeline--compact .timeline__item {
+    padding-block: 0.8rem;
+  }
+
+  .timeline__when {
+    padding-top: 0.12rem;
+    font-size: var(--step--1);
+    color: var(--color-text-subtle);
+  }
+
+  .timeline__item--current .timeline__when {
+    color: var(--color-accent);
+    font-weight: 560;
+  }
+
+  .timeline__title {
+    font-weight: 560;
+    color: var(--color-text);
+    line-height: 1.4;
+  }
+
+  .timeline__title a {
+    color: inherit;
+  }
+
+  .timeline__subtitle {
+    color: var(--color-text-muted);
+  }
+
+  .timeline__meta {
+    margin-top: 0.15rem;
+    font-size: var(--step--1);
+    color: var(--color-text-subtle);
+  }
+
+  .timeline__detail {
+    margin-top: 0.35rem;
+    font-size: var(--step--1);
+    color: var(--color-text-muted);
+    max-width: 44rem;
+  }
+</style>

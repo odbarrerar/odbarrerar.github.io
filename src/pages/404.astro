@@ -1,0 +1,66 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Button from '../components/Button.astro';
+import { NAV } from '../lib/nav';
+---
+
+<BaseLayout title="Page not found" description="The page you were looking for could not be found." noindex>
+  <section class="container nf">
+    <p class="eyebrow">Error 404</p>
+    <h1 class="nf__title">This page could not be found.</h1>
+    <p class="lede nf__text">
+      The page may have moved when this website was rebuilt. The main sections are listed below.
+    </p>
+    <div class="nf__actions">
+      <Button href="/" variant="primary" icon="arrow-left">Back to the homepage</Button>
+      <Button href="/publications/" variant="secondary">Publications</Button>
+    </div>
+    <ul class="nf__links" role="list">
+      {
+        NAV.map((item) => (
+          <li>
+            <a href={item.href}>{item.label}</a>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+</BaseLayout>
+
+<style>
+  .nf {
+    padding-top: clamp(3rem, 2rem + 6vw, 8rem);
+    padding-bottom: var(--space-section);
+  }
+
+  .nf__title {
+    margin-top: 1rem;
+    max-width: 18ch;
+  }
+
+  .nf__text {
+    margin-top: 1.25rem;
+  }
+
+  .nf__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: var(--space-l);
+  }
+
+  .nf__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1.5rem;
+    margin: var(--space-xl) 0 0;
+    padding: var(--space-m) 0 0;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .nf__links a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.5rem;
+  }
+</style>

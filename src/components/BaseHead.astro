@@ -1,0 +1,120 @@
+---
+/**
+ * <head> contents: title, description, canonical URL, Open Graph and X
+ * cards, fonts, favicons, theme bootstrap and structured data.
+ */
+import { Font, getImage } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import { profile } from '../lib/data';
+import { breadcrumbSchema, graph, personSchema, websiteSchema, type JsonLd } from '../lib/seo';
+import type { Crumb } from './Breadcrumbs.astro';
+
+interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+  imageAlt?: string;
+  type?: 'website' | 'article' | 'profile';
+  noindex?: boolean;
+  jsonLd?: JsonLd[];
+  breadcrumbs?: Crumb[];
+  publishedTime?: string;
+}
+
+const {
+  title,
+  description = profile.seo_description,
+  image = '/og/default.png',
+  imageAlt = `${profile.name}, ${profile.position}, ${profile.institution}`,
+  type = 'website',
+  noindex = false,
+  jsonLd = [],
+  breadcrumbs,
+  publishedTime,
+} = Astro.props;
+
+const site = (Astro.site?.toString() ?? 'https://odbarrerar.github.io/').replace(/\/$/, '');
+const canonical = new URL(Astro.url.pathname, `${site}/`).toString();
+const fullTitle = title
+  ? `${title} · ${profile.name}`
+  : `${profile.name} · ${profile.position}, ${profile.institution}`;
+const imageUrl = new URL(image, `${site}/`).toString();
+const portraitFiles = import.meta.glob<{ default: ImageMetadata }>(
+  '../assets/images/portrait.{jpg,jpeg,png,webp,avif}',
+  { eager: true },
+);
+const portraitSrc = Object.values(portraitFiles)[0]?.default;
+const portraitUrl = portraitSrc
+  ? new URL((await getImage({ src: portraitSrc, width: 600, format: 'jpg' })).src, `${site}/`).toString()
+  : undefined;
+
+const crumbs =
+  breadcrumbs && breadcrumbs.length > 1
+    ? breadcrumbSchema(breadcrumbs.map((c) => ({ name: c.name, url: new URL(c.href, `${site}/`).toString() })))
+    : undefined;
+
+const structured = graph(websiteSchema(site), personSchema(site, portraitUrl), ...jsonLd, crumbs);
+---
+
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>{fullTitle}</title>
+<meta name="description" content={description} />
+{noindex ? <meta name="robots" content="noindex, follow" /> : <link rel="canonical" href={canonical} />}
+<meta name="author" content={profile.name} />
+<meta name="generator" content={Astro.generator} />
+
+<!-- Theme: applied before first paint to avoid a flash of the wrong theme -->
+<script is:inline>
+  (() => {
+    const root = document.documentElement;
+    root.classList.add('has-js');
+    try {
+      const saved = localStorage.getItem('theme');
+      if (saved === 'light' || saved === 'dark') root.dataset.theme = saved;
+    } catch {}
+  })();
+</script>
+<meta name="color-scheme" content="light dark" />
+<meta name="theme-color" content="#faf8f3" media="(prefers-color-scheme: light)" />
+<meta name="theme-color" content="#141311" media="(prefers-color-scheme: dark)" />
+
+<!-- Fonts (self-hosted; only the regular latin files are preloaded) -->
+<Font cssVariable="--font-serif" preload={[{ style: 'normal' }]} />
+<Font cssVariable="--font-sans" preload={[{ style: 'normal' }]} />
+
+<!-- Icons -->
+<link rel="icon" href="/favicon.ico" sizes="32x32" />
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+<link rel="manifest" href="/site.webmanifest" />
+<link rel="sitemap" href="/sitemap-index.xml" />
+
+<!-- Open Graph -->
+<meta property="og:type" content={type} />
+<meta property="og:site_name" content={profile.name} />
+<meta property="og:title" content={title ?? fullTitle} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonical} />
+<meta property="og:image" content={imageUrl} />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content={imageAlt} />
+<meta property="og:locale" content="en_IE" />
+{type === 'profile' && <meta property="profile:first_name" content="Oscar" />}
+{type === 'profile' && <meta property="profile:last_name" content="Barrera Rodríguez" />}
+{publishedTime && <meta property="article:published_time" content={publishedTime} />}
+
+<!-- X / Twitter -->
+<meta name="twitter:card" content="summary_large_image" />
+{profile.x_handle && <meta name="twitter:site" content={`@${profile.x_handle}`} />}
+{profile.x_handle && <meta name="twitter:creator" content={`@${profile.x_handle}`} />}
+<meta name="twitter:title" content={title ?? fullTitle} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={imageUrl} />
+<meta name="twitter:image:alt" content={imageAlt} />
+
+<!-- Structured data -->
+<script type="application/ld+json" set:html={JSON.stringify(structured)} />
+
+<slot />

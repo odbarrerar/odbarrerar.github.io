@@ -1,0 +1,205 @@
+---
+/**
+ * Formatted citation and BibTeX for a paper, with copy buttons.
+ * `collapsible` wraps it in a <details> ("Cite") for lists.
+ */
+import Icon from './Icon.astro';
+import { formatBibtex, formatCitation, type Paper } from '../lib/research';
+
+interface Props {
+  paper: Paper;
+  collapsible?: boolean;
+}
+
+const { paper, collapsible = false } = Astro.props;
+const site = (Astro.site?.toString() ?? '').replace(/\/$/, '');
+const citation = formatCitation(paper, site);
+const bibtex = formatBibtex(paper, site);
+const uid = `cite-${paper.id}`;
+---
+
+{
+  collapsible ? (
+    <details class="cite cite--collapsible">
+      <summary class="cite__summary">
+        <Icon name="quote" class="cite__summary-icon" />
+        <span>Cite</span>
+        <Icon name="chevron-down" class="cite__chevron" />
+      </summary>
+      <div class="cite__body">
+        <div class="cite__block">
+          <div class="cite__head">
+            <span class="label">Citation</span>
+            <button type="button" class="cite__copy js-only" data-copy={`${uid}-apa`}>
+              <Icon name="copy" /> <span data-copy-label>Copy</span>
+            </button>
+          </div>
+          <p class="cite__text" id={`${uid}-apa`}>{citation}</p>
+        </div>
+        <div class="cite__block">
+          <div class="cite__head">
+            <span class="label">BibTeX</span>
+            <button type="button" class="cite__copy js-only" data-copy={`${uid}-bib`}>
+              <Icon name="copy" /> <span data-copy-label>Copy</span>
+            </button>
+          </div>
+          <pre class="cite__bib" id={`${uid}-bib`} tabindex="0"><code>{bibtex}</code></pre>
+        </div>
+      </div>
+    </details>
+  ) : (
+    <div class="cite">
+      <div class="cite__block">
+        <div class="cite__head">
+          <span class="label">Citation</span>
+          <button type="button" class="cite__copy js-only" data-copy={`${uid}-apa`}>
+            <Icon name="copy" /> <span data-copy-label>Copy</span>
+          </button>
+        </div>
+        <p class="cite__text" id={`${uid}-apa`}>{citation}</p>
+      </div>
+      <div class="cite__block">
+        <div class="cite__head">
+          <span class="label">BibTeX</span>
+          <button type="button" class="cite__copy js-only" data-copy={`${uid}-bib`}>
+            <Icon name="copy" /> <span data-copy-label>Copy</span>
+          </button>
+        </div>
+        <pre class="cite__bib" id={`${uid}-bib`} tabindex="0"><code>{bibtex}</code></pre>
+      </div>
+    </div>
+  )
+}
+
+<script>
+  const live = document.createElement('p');
+  live.className = 'visually-hidden';
+  live.setAttribute('aria-live', 'polite');
+  document.body.append(live);
+
+  document.addEventListener('click', async (event) => {
+    const button = (event.target as HTMLElement).closest<HTMLButtonElement>('[data-copy]');
+    if (!button) return;
+    const target = document.getElementById(button.dataset.copy!);
+    if (!target) return;
+    const label = button.querySelector('[data-copy-label]');
+    try {
+      await navigator.clipboard.writeText(target.innerText.trim());
+      if (label) label.textContent = 'Copied';
+      live.textContent = 'Copied to clipboard';
+    } catch {
+      const range = document.createRange();
+      range.selectNodeContents(target);
+      const selection = window.getSelection();
+      selection?.removeAllRanges();
+      selection?.addRange(range);
+      if (label) label.textContent = 'Selected';
+      live.textContent = 'Text selected. Press Control or Command plus C to copy.';
+    }
+    window.setTimeout(() => {
+      if (label) label.textContent = 'Copy';
+    }, 2200);
+  });
+</script>
+
+<style>
+  .cite__summary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    min-height: 2rem;
+    font-size: var(--step--1);
+    font-weight: 560;
+    color: var(--color-text);
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+  }
+
+  .cite__summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .cite__summary:hover {
+    color: var(--color-accent);
+  }
+
+  .cite__summary :global(.cite__summary-icon) {
+    color: var(--color-accent);
+  }
+
+  .cite__summary :global(.cite__chevron) {
+    transition: transform var(--dur-fast) var(--ease);
+  }
+
+  details[open] :global(.cite__chevron) {
+    transform: rotate(180deg);
+  }
+
+  .cite__body {
+    display: grid;
+    gap: var(--space-s);
+    margin-top: var(--space-xs);
+    padding: var(--space-s);
+    background: var(--color-bg-soft);
+    border-radius: var(--radius-m);
+  }
+
+  .cite:not(.cite--collapsible) {
+    display: grid;
+    gap: var(--space-m);
+  }
+
+  .cite,
+  .cite__body > *,
+  .cite > .cite__block {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .cite__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-s);
+    margin-bottom: 0.4rem;
+  }
+
+  .cite__copy {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35em;
+    min-height: 2rem;
+    padding: 0.25rem 0.6rem;
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-s);
+    background: var(--color-bg);
+    font-size: var(--step--2);
+    font-weight: 560;
+    color: var(--color-text-muted);
+  }
+
+  .cite__copy:hover {
+    color: var(--color-accent);
+    border-color: var(--color-accent);
+  }
+
+  .cite__text {
+    font-size: var(--step--1);
+    line-height: 1.55;
+    color: var(--color-text);
+    overflow-wrap: anywhere;
+  }
+
+  .cite__bib {
+    margin: 0;
+    padding: 0.85rem 1rem;
+    background: var(--color-code-bg);
+    border-radius: var(--radius-s);
+    font-size: 0.78rem;
+    line-height: 1.55;
+    color: var(--color-text);
+    overflow-x: auto;
+    white-space: pre;
+  }
+</style>

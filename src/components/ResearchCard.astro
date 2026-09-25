@@ -1,0 +1,172 @@
+---
+/**
+ * Editorial block for a paper: status and venue in a narrow meta column,
+ * title, co-authors, summary, themes and typed links in the main column.
+ */
+import AuthorList from './AuthorList.astro';
+import PaperLinks from './PaperLinks.astro';
+import Tag from './Tag.astro';
+import {
+  STATUS_LABEL,
+  groupOf,
+  paperUrl,
+  themeTitles,
+  venueParts,
+  type Paper,
+} from '../lib/research';
+
+interface Props {
+  paper: Paper;
+  level?: 2 | 3 | 4;
+  variant?: 'default' | 'feature';
+  showThemes?: boolean;
+  showSummary?: boolean;
+}
+
+const { paper, level = 3, variant = 'default', showThemes = true, showSummary = true } = Astro.props;
+const d = paper.data;
+const Heading = `h${level}` as 'h2' | 'h3' | 'h4';
+const group = groupOf(d.status);
+const { venue, details } = venueParts(paper);
+const themes = themeTitles(paper);
+---
+
+<article
+  class:list={['rcard', `rcard--${variant}`]}
+  data-filter-item
+  data-group={group}
+  data-topics={d.topics.join(' ')}
+  data-year={d.year ?? ''}
+>
+  <div class="rcard__meta">
+    <Tag variant="status" marker={group}>{STATUS_LABEL[d.status]}</Tag>
+    {venue && <p class="rcard__venue"><cite>{venue}</cite></p>}
+    {details && <p class="rcard__details num">{details}</p>}
+    {d.open_access && <p class="rcard__oa">Open access</p>}
+  </div>
+
+  <div class="rcard__main">
+    <Heading class="rcard__title">
+      <a href={paperUrl(paper)}>{d.title}</a>
+    </Heading>
+    <AuthorList authors={d.authors} class="rcard__authors" />
+    {showSummary && <p class="rcard__summary">{d.summary}</p>}
+    <div class="rcard__footer">
+      <PaperLinks paper={paper} details />
+      {
+        showThemes && themes.length > 0 && (
+          <ul class="rcard__themes" role="list" aria-label="Themes">
+            {themes.map((t) => (
+              <li>
+                <Tag variant="topic" href={`/research/?theme=${t.id}`}>
+                  {t.short}
+                </Tag>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+    </div>
+  </div>
+</article>
+
+<style>
+  .rcard {
+    display: grid;
+    gap: 0.9rem var(--space-l);
+    padding-block: clamp(1.5rem, 1.1rem + 1.4vw, 2.25rem);
+    border-top: 1px solid var(--color-border);
+  }
+
+  @media (min-width: 48em) {
+    .rcard {
+      grid-template-columns: minmax(9rem, 12rem) minmax(0, 1fr);
+    }
+  }
+
+  .rcard__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.35rem 0.9rem;
+    font-size: var(--step--1);
+    color: var(--color-text-muted);
+  }
+
+  @media (min-width: 48em) {
+    .rcard__meta {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.55rem;
+      padding-top: 0.3rem;
+    }
+  }
+
+  .rcard__venue {
+    font-family: var(--font-display);
+    font-size: var(--step-0);
+    line-height: 1.3;
+    color: var(--color-text);
+  }
+
+  .rcard__details,
+  .rcard__oa {
+    font-size: var(--step--1);
+    color: var(--color-text-subtle);
+  }
+
+  .rcard__title {
+    font-size: var(--step-2);
+    font-weight: 450;
+    line-height: 1.22;
+    max-width: 44rem;
+  }
+
+  .rcard--feature .rcard__title {
+    font-size: var(--step-3);
+    font-weight: 420;
+    line-height: 1.14;
+  }
+
+  .rcard__title a {
+    color: inherit;
+    text-decoration: none;
+    background-image: linear-gradient(currentColor, currentColor);
+    background-size: 0% 1px;
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    transition: background-size var(--dur) var(--ease);
+  }
+
+  .rcard__title a:hover {
+    color: var(--color-accent);
+    background-size: 100% 1px;
+  }
+
+  .rcard__main :global(.rcard__authors) {
+    margin-top: 0.6rem;
+  }
+
+  .rcard__summary {
+    margin-top: 0.85rem;
+    max-width: 44rem;
+    color: var(--color-text-muted);
+  }
+
+  .rcard__footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem 1.5rem;
+    margin-top: 1.1rem;
+  }
+
+  .rcard__themes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin: 0;
+    padding: 0;
+  }
+</style>

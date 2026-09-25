@@ -1,0 +1,166 @@
+---
+import PageLayout from '../layouts/PageLayout.astro';
+import PublicationCard from '../components/PublicationCard.astro';
+import FilterBar from '../components/FilterBar.astro';
+import Button from '../components/Button.astro';
+import { profile, themes } from '../lib/data';
+import { GROUPS, byGroup, getPapers } from '../lib/research';
+
+const papers = await getPapers();
+const groups = byGroup(papers).filter((g) => g.papers.length > 0);
+
+const statusOptions = GROUPS.map((g) => ({
+  value: g.id,
+  label: g.label,
+  count: papers.filter((p) => (g.statuses as readonly string[]).includes(p.data.status)).length,
+})).filter((o) => o.count > 0);
+
+const themeOptions = themes.map((t) => ({
+  value: t.id,
+  label: t.short,
+  count: papers.filter((p) => p.data.topics.includes(t.id)).length,
+}));
+
+const published = papers.filter((p) => ['published', 'forthcoming', 'book-chapter'].includes(p.data.status)).length;
+---
+
+<PageLayout
+  title="Publications"
+  eyebrow="Research"
+  intro={profile.page_intros.publications}
+  description="Publications and working papers by Oscar Barrera Rodríguez, with abstracts, DOIs, PDFs and BibTeX citations."
+>
+  <div slot="header" class="pub-actions">
+    <Button href="/publications.bib" icon="download" variant="secondary" size="s" download="barrera-rodriguez.bib">
+      Download all as BibTeX
+    </Button>
+    {
+      profile.links.scholar && (
+        <Button href={profile.links.scholar} icon="scholar" variant="quiet" size="s">
+          Google Scholar profile
+        </Button>
+      )
+    }
+    <p class="pub-actions__summary">
+      <span class="num">{published}</span> published · <span class="num">{papers.length - published}</span> working papers and projects
+    </p>
+  </div>
+
+  <div class="container publications" data-filter-scope data-filter-noun="entries">
+    <div class="toolbar">
+      <FilterBar label="Status" filterKey="group" options={statusOptions} id="filter-status" />
+      <FilterBar label="Theme" filterKey="topics" options={themeOptions} id="filter-theme" />
+      <div class="toolbar__row js-only">
+        <label class="sort">
+          <span class="label">Sort by</span>
+          <select data-sort>
+            <option value="new">Newest first</option>
+            <option value="old">Oldest first</option>
+            <option value="title">Title (A–Z)</option>
+          </select>
+        </label>
+        <p class="toolbar__count" data-filter-count aria-live="polite"></p>
+      </div>
+    </div>
+
+    {
+      groups.map((g) => (
+        <section class="pub-group" id={g.id} data-filter-section aria-labelledby={`pub-${g.id}`}>
+          <h2 id={`pub-${g.id}`} class="pub-group__title">
+            {g.label}
+          </h2>
+          <ol class="pub-list" role="list" data-sort-list>
+            {g.papers.map((p) => (
+              <PublicationCard paper={p} />
+            ))}
+          </ol>
+        </section>
+      ))
+    }
+
+    <p class="publications__empty" data-filter-empty hidden>No entries match these filters.</p>
+  </div>
+</PageLayout>
+
+<script>
+  import '../scripts/filters';
+</script>
+
+<style>
+  .pub-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem 1.25rem;
+  }
+
+  .pub-actions__summary {
+    font-size: var(--step--1);
+    color: var(--color-text-subtle);
+  }
+
+  .publications {
+    padding-top: var(--space-xl);
+    padding-bottom: var(--space-section);
+  }
+
+  .toolbar {
+    display: grid;
+    gap: 0.9rem;
+    margin-bottom: var(--space-xl);
+    padding-bottom: var(--space-l);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .toolbar__row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .sort {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .sort .label {
+    min-width: 4.5rem;
+  }
+
+  .sort select {
+    min-height: 2.5rem;
+    padding: 0.35rem 2rem 0.35rem 0.75rem;
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-m);
+    background: var(--color-bg);
+    font-size: var(--step--1);
+    color: var(--color-text);
+  }
+
+  .toolbar__count {
+    font-size: var(--step--1);
+    color: var(--color-text-subtle);
+  }
+
+  .pub-group + .pub-group {
+    margin-top: var(--space-2xl);
+  }
+
+  .pub-group__title {
+    margin-bottom: var(--space-xs);
+    font-size: var(--step-3);
+  }
+
+  .pub-list {
+    margin: 0;
+    padding: 0;
+  }
+
+  .publications__empty {
+    padding: var(--space-l) 0;
+    color: var(--color-text-muted);
+  }
+</style>

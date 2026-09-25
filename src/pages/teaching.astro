@@ -1,0 +1,191 @@
+---
+import PageLayout from '../layouts/PageLayout.astro';
+import Icon from '../components/Icon.astro';
+import { profile, teaching } from '../lib/data';
+
+const institutions = new Set(teaching.flatMap((c) => c.sessions.map((s) => s.institution)));
+const languages = new Set(teaching.map((c) => c.language).filter(Boolean));
+const years = teaching.flatMap((c) => c.sessions.map((s) => s.year));
+const span = `${Math.min(...years)}–${Math.max(...years)}`;
+---
+
+<PageLayout
+  title="Teaching"
+  intro={profile.page_intros.teaching}
+  description={`Teaching by ${profile.name}: microeconomics, macroeconomics, statistics and quantitative methods at undergraduate and master's level in France.`}
+>
+  <dl slot="header" class="stats">
+    <div><dt>Courses</dt><dd class="num">{teaching.length}</dd></div>
+    <div><dt>Institutions</dt><dd class="num">{institutions.size}</dd></div>
+    <div><dt>Languages</dt><dd>{[...languages].join(', ')}</dd></div>
+    <div><dt>Years</dt><dd class="num">{span}</dd></div>
+  </dl>
+
+  <div class="container teaching">
+    <ol class="courses" role="list">
+      {
+        teaching.map((c) => (
+          <li class="course">
+            <div class="course__head">
+              <h2 class="course__title">{c.course}</h2>
+              <dl class="course__facts">
+                <div>
+                  <dt>Level</dt>
+                  <dd>{c.level}</dd>
+                </div>
+                {c.language && (
+                  <div>
+                    <dt>Language</dt>
+                    <dd>{c.language}</dd>
+                  </div>
+                )}
+                {c.role && (
+                  <div>
+                    <dt>Role</dt>
+                    <dd>{c.role}</dd>
+                  </div>
+                )}
+              </dl>
+            </div>
+            <div class="course__body">
+              {c.description && <p class="course__desc">{c.description}</p>}
+              <table class="sessions">
+                <caption class="visually-hidden">Where and when {c.course} was taught</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Institution</th>
+                    <th scope="col">Term</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {c.sessions.map((s) => (
+                    <tr>
+                      <td>{s.institution}</td>
+                      <td class="num">{s.term}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {c.syllabus && (
+                <p class="course__syllabus">
+                  <a href={c.syllabus}>
+                    <Icon name="file" /> Syllabus
+                  </a>
+                </p>
+              )}
+            </div>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</PageLayout>
+
+<style>
+  .stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem clamp(2rem, 5vw, 4rem);
+    margin: 0;
+  }
+
+  .stats dt {
+    font-size: var(--step--2);
+    font-weight: 600;
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--color-text-subtle);
+  }
+
+  .stats dd {
+    margin: 0.2rem 0 0;
+    font-family: var(--font-display);
+    font-size: var(--step-2);
+  }
+
+  .teaching {
+    padding-top: var(--space-xl);
+    padding-bottom: var(--space-section);
+  }
+
+  .courses {
+    margin: 0;
+    padding: 0;
+  }
+
+  .course {
+    display: grid;
+    gap: var(--space-m) var(--space-xl);
+    padding-block: var(--space-l);
+    border-top: 1px solid var(--color-border);
+  }
+
+  @media (min-width: 56em) {
+    .course {
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    }
+  }
+
+  .course__title {
+    font-size: var(--step-2);
+  }
+
+  .course__facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.75rem;
+    margin: 0.9rem 0 0;
+    font-size: var(--step--1);
+  }
+
+  .course__facts dt {
+    color: var(--color-text-subtle);
+  }
+
+  .course__facts dd {
+    margin: 0;
+    font-weight: 540;
+  }
+
+  .course__desc {
+    margin-bottom: var(--space-s);
+    color: var(--color-text-muted);
+  }
+
+  .sessions {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--step--1);
+  }
+
+  .sessions th {
+    padding: 0 0 0.5rem;
+    font-size: var(--step--2);
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-align: left;
+    text-transform: uppercase;
+    color: var(--color-text-subtle);
+  }
+
+  .sessions td {
+    padding: 0.65rem 1rem 0.65rem 0;
+    border-top: 1px solid var(--color-border);
+    vertical-align: top;
+  }
+
+  .sessions td:last-child {
+    padding-right: 0;
+    white-space: nowrap;
+    color: var(--color-text-muted);
+    text-align: right;
+  }
+
+  .sessions th:last-child {
+    text-align: right;
+  }
+
+  .course__syllabus {
+    margin-top: 0.75rem;
+  }
+</style>

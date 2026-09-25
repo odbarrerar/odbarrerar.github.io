@@ -1,0 +1,212 @@
+---
+/** One talk, seminar or conference presentation. */
+import Icon from './Icon.astro';
+import Tag from './Tag.astro';
+import type { Talk } from '../lib/data';
+import { formatPartialDate, monthName } from '../lib/format';
+
+interface Props {
+  talk: Talk;
+  upcoming?: boolean;
+  paper?: { title: string; href: string };
+  showYear?: boolean;
+}
+
+const { talk, upcoming = false, paper, showYear = false } = Astro.props;
+
+function when(): string {
+  if (talk.date) {
+    const [y, m, d] = talk.date.split('-');
+    if (!m) return y;
+    if (talk.end_date) {
+      const [ey, em, ed] = talk.end_date.split('-');
+      if (d && ed && m === em && y === ey) return `${monthName(Number(m))} ${Number(d)}–${Number(ed)}${showYear ? `, ${y}` : ''}`;
+    }
+    const base = formatPartialDate(talk.date, 'short');
+    return showYear ? base : base.replace(/ \d{4}$/, '');
+  }
+  if (talk.month) return `${monthName(talk.month)}${showYear ? ` ${talk.year}` : ''}`;
+  return showYear ? String(talk.year) : '';
+}
+
+const place = [talk.city, talk.country].filter(Boolean).join(', ');
+const label = when();
+---
+
+<li class:list={['event', upcoming && 'event--upcoming']} data-filter-item data-type={talk.type}>
+  {
+    label && (
+      <p class="event__when tnum">
+        <time datetime={talk.date ?? (talk.month ? `${talk.year}-${String(talk.month).padStart(2, '0')}` : String(talk.year))}>{label}</time>
+      </p>
+    )
+  }
+  <div class="event__body">
+    <p class="event__title">
+      {talk.url ? <a href={talk.url}>{talk.event}</a> : talk.event}
+    </p>
+    <p class="event__where">
+      {talk.host && <span>{talk.host}</span>}
+      {talk.host && place && <span class="event__sep" aria-hidden="true">·</span>}
+      <span>
+        {talk.online && <Icon name="globe" class="event__icon" />}
+        {place}
+      </span>
+    </p>
+    {talk.title && <p class="event__talk">“{talk.title}”</p>}
+    {
+      (paper || talk.slides || talk.note) && (
+        <p class="event__extra">
+          {paper && (
+            <a href={paper.href}>
+              <Icon name="file" /> {paper.title}
+            </a>
+          )}
+          {talk.slides && (
+            <a href={talk.slides}>
+              <Icon name="slides" /> Slides
+            </a>
+          )}
+          {talk.note && <span class="event__note">{talk.note}</span>}
+        </p>
+      )
+    }
+  </div>
+  <div class="event__type">
+    {upcoming && <Tag variant="accent" marker="upcoming">Upcoming</Tag>}
+    <Tag>{talk.type}</Tag>
+  </div>
+</li>
+
+<style>
+  .event {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      'when'
+      'body'
+      'type';
+    gap: 0.3rem;
+    padding-block: 1.1rem;
+    border-top: 1px solid var(--color-border);
+  }
+
+  @media (min-width: 48em) {
+    .event {
+      grid-template-columns: 7rem minmax(0, 1fr) auto;
+      grid-template-areas: 'when body type';
+      gap: 0.35rem var(--space-m);
+    }
+  }
+
+  .event__when {
+    grid-area: when;
+    font-size: var(--step--1);
+    color: var(--color-text-subtle);
+  }
+
+  @media (min-width: 48em) {
+    .event__when {
+      padding-top: 0.15rem;
+    }
+
+  }
+
+  .event__body {
+    grid-area: body;
+    min-width: 0;
+  }
+
+  .event__type {
+    grid-area: type;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding-top: 0.2rem;
+  }
+
+  .event__title {
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    line-height: 1.3;
+    color: var(--color-text);
+  }
+
+  .event__title a {
+    color: inherit;
+    text-decoration-color: var(--color-border-strong);
+  }
+
+  .event__title a:hover {
+    color: var(--color-accent);
+    text-decoration-color: currentColor;
+  }
+
+  .event__where {
+    display: flex;
+    flex-direction: column;
+    margin-top: 0.2rem;
+    font-size: var(--step--1);
+    color: var(--color-text-muted);
+  }
+
+  .event__sep {
+    display: none;
+    color: var(--color-border-strong);
+  }
+
+  @media (min-width: 48em) {
+    .event__where {
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 0 0.5rem;
+    }
+
+    .event__sep {
+      display: inline;
+    }
+  }
+
+  .event__where :global(.event__icon) {
+    margin-right: 0.3em;
+  }
+
+  .event__talk {
+    margin-top: 0.35rem;
+    font-size: var(--step--1);
+    font-style: italic;
+    color: var(--color-text-muted);
+  }
+
+  .event__extra {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem 1rem;
+    margin-top: 0.45rem;
+    font-size: var(--step--1);
+  }
+
+  .event__extra a {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.35em;
+    text-decoration: none;
+    font-weight: 540;
+  }
+
+  .event__extra a:hover {
+    text-decoration: underline;
+  }
+
+  .event__note {
+    color: var(--color-text-subtle);
+  }
+
+  .event--upcoming {
+    background: var(--color-accent-soft);
+    border-top-color: var(--color-accent);
+    padding-inline: 1rem;
+    margin-inline: -1rem;
+    border-radius: var(--radius-s);
+  }
+</style>

@@ -1,0 +1,183 @@
+---
+/** Card for a research repository, dataset or replication package. */
+import Icon from './Icon.astro';
+import Tag from './Tag.astro';
+import type { CodeItem } from '../lib/data';
+import { formatPartialDate } from '../lib/format';
+
+interface Props {
+  item: CodeItem;
+  paper?: { title: string; href: string };
+  level?: 2 | 3;
+}
+
+const { item, paper, level = 3 } = Astro.props;
+const Heading = `h${level}` as 'h2' | 'h3';
+const kindLabel = { code: 'Code', data: 'Data', replication: 'Replication package' }[item.kind];
+const kindIcon = { code: 'code', data: 'data', replication: 'archive' } as const;
+const isGitHub = item.url.includes('github.com');
+---
+
+<article class="project">
+  <div class="project__head">
+    <Tag variant="accent">
+      <Icon name={kindIcon[item.kind]} />
+      {kindLabel}
+    </Tag>
+    {item.updated && <span class="project__updated">Updated {formatPartialDate(item.updated, 'short')}</span>}
+  </div>
+
+  <Heading class="project__title">
+    <a href={item.url}>{item.title}</a>
+  </Heading>
+  {item.repo && <p class="project__repo"><code>{item.repo}</code></p>}
+
+  <p class="project__desc">{item.description}</p>
+
+  <dl class="project__facts">
+    {
+      paper && (
+        <div>
+          <dt>Paper</dt>
+          <dd>
+            <a href={paper.href}>{paper.title}</a>
+          </dd>
+        </div>
+      )
+    }
+    {
+      item.context && (
+        <div>
+          <dt>Context</dt>
+          <dd>{item.context}</dd>
+        </div>
+      )
+    }
+    {
+      item.languages.length > 0 && (
+        <div>
+          <dt>Language</dt>
+          <dd>{item.languages.join(' · ')}</dd>
+        </div>
+      )
+    }
+    {
+      item.availability && (
+        <div>
+          <dt>Availability</dt>
+          <dd>{item.availability}</dd>
+        </div>
+      )
+    }
+    {
+      item.license && (
+        <div>
+          <dt>License</dt>
+          <dd>{item.license}</dd>
+        </div>
+      )
+    }
+  </dl>
+
+  <p class="project__link">
+    <a href={item.url}>
+      <Icon name={isGitHub ? 'repo' : 'external'} />
+      {isGitHub ? 'View repository on GitHub' : 'Open'}
+    </a>
+    {item.doi && <a href={`https://doi.org/${item.doi}`}><Icon name="doi" /> DOI</a>}
+  </p>
+</article>
+
+<style>
+  .project {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+    padding: clamp(1.25rem, 1rem + 1vw, 1.75rem);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-m);
+    background: var(--color-surface);
+    height: 100%;
+  }
+
+  .project__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-s);
+  }
+
+  .project__updated {
+    font-size: var(--step--2);
+    color: var(--color-text-subtle);
+  }
+
+  .project__title {
+    font-size: var(--step-2);
+    font-weight: 460;
+  }
+
+  .project__title a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .project__title a:hover {
+    color: var(--color-accent);
+  }
+
+  .project__repo code {
+    font-size: var(--step--1);
+    color: var(--color-text-muted);
+  }
+
+  .project__desc {
+    color: var(--color-text-muted);
+  }
+
+  .project__facts {
+    display: grid;
+    gap: 0.45rem;
+    margin: 0.25rem 0 0;
+    padding-top: 0.9rem;
+    border-top: 1px solid var(--color-border);
+    font-size: var(--step--1);
+  }
+
+  .project__facts div {
+    display: grid;
+    grid-template-columns: 6.5rem minmax(0, 1fr);
+    gap: var(--space-s);
+  }
+
+  .project__facts dt {
+    color: var(--color-text-subtle);
+  }
+
+  .project__facts dd {
+    margin: 0;
+    color: var(--color-text);
+  }
+
+  .project__link {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.25rem;
+    margin-top: auto;
+    padding-top: 0.5rem;
+  }
+
+  .project__link a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45em;
+    min-height: 2.25rem;
+    font-size: var(--step--1);
+    font-weight: 560;
+    text-decoration: none;
+  }
+
+  .project__link a:hover {
+    text-decoration: underline;
+  }
+</style>

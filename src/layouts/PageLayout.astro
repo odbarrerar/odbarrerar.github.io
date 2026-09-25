@@ -1,0 +1,41 @@
+---
+/** Inner page: page header (breadcrumbs, title, intro) followed by content. */
+import BaseLayout from './BaseLayout.astro';
+import PageHeader from '../components/PageHeader.astro';
+import type { Crumb } from '../components/Breadcrumbs.astro';
+import type { JsonLd } from '../lib/seo';
+
+interface Props {
+  title: string;
+  /** Visible H1, when different from the <title>. */
+  heading?: string;
+  eyebrow?: string;
+  intro?: string;
+  description?: string;
+  image?: string;
+  type?: 'website' | 'article' | 'profile';
+  jsonLd?: JsonLd[];
+  breadcrumbs?: Crumb[];
+}
+
+const { title, heading, eyebrow, intro, description, image, type, jsonLd, breadcrumbs } = Astro.props;
+const crumbs = breadcrumbs ?? [
+  { name: 'Home', href: '/' },
+  { name: title, href: Astro.url.pathname },
+];
+---
+
+<BaseLayout
+  title={title}
+  description={description ?? intro}
+  image={image}
+  type={type}
+  jsonLd={jsonLd}
+  breadcrumbs={crumbs}
+>
+  <slot name="head" slot="head" />
+  <PageHeader title={heading ?? title} eyebrow={eyebrow} intro={intro} breadcrumbs={crumbs}>
+    <slot name="header" />
+  </PageHeader>
+  <slot />
+</BaseLayout>

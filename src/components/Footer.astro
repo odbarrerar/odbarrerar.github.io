@@ -1,0 +1,139 @@
+---
+/** Compact footer: identity and contact, profile links, site navigation. */
+import SocialLinks from './SocialLinks.astro';
+import { NAV } from '../lib/nav';
+import { profile } from '../lib/data';
+
+const year = new Date().getFullYear();
+const built = new Date().toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+---
+
+<footer class="site-footer">
+  <div class="container site-footer__grid">
+    <div class="site-footer__id">
+      <p class="site-footer__name">{profile.name}</p>
+      <p class="site-footer__role">
+        {profile.position}<br />
+        {profile.department}<br />
+        {profile.institution}
+      </p>
+      <p class="site-footer__email">
+        <a href={`mailto:${profile.email}`}>{profile.email}</a>
+      </p>
+    </div>
+
+    <div>
+      <p class="label site-footer__heading">Profiles</p>
+      <SocialLinks
+        include={['ucd', 'scholar', 'github', 'x', 'bluesky', 'democracy_challenged']}
+        variant="footer"
+        class="site-footer__social"
+      />
+    </div>
+
+    <nav id="site-footer-nav" aria-label="Footer">
+      <p class="label site-footer__heading">Site</p>
+      <ul class="site-footer__nav" role="list">
+        <li><a href="/">Home</a></li>
+        {
+          NAV.map((item) => (
+            <li>
+              <a href={item.href}>{item.label}</a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+  </div>
+  <div class="container site-footer__base">
+    <p>© {year} {profile.name}</p>
+    <p>Last updated {built}</p>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    margin-top: auto;
+    padding-top: var(--space-2xl);
+    border-top: 1px solid var(--color-border);
+    background: var(--color-bg-soft);
+    font-size: var(--step--1);
+    color: var(--color-text-muted);
+  }
+
+  .site-footer__grid {
+    display: grid;
+    gap: var(--space-xl);
+  }
+
+  @media (min-width: 48em) {
+    .site-footer__grid {
+      grid-template-columns: 1.3fr 1fr 1.2fr;
+    }
+  }
+
+  .site-footer__name {
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    color: var(--color-text);
+  }
+
+  .site-footer__role {
+    margin-top: 0.5rem;
+    line-height: 1.55;
+  }
+
+  .site-footer__email {
+    margin-top: 0.9rem;
+  }
+
+  .site-footer__email a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.5rem;
+    font-weight: 560;
+    overflow-wrap: anywhere;
+  }
+
+  .site-footer__heading {
+    margin-bottom: 0.5rem;
+  }
+
+  .site-footer :global(.site-footer__social) {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .site-footer__nav {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 var(--space-m);
+    margin: 0;
+    padding: 0;
+  }
+
+  .site-footer__nav a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.5rem;
+    color: var(--color-text-muted);
+    text-decoration: none;
+  }
+
+  .site-footer__nav a:hover {
+    color: var(--color-accent);
+    text-decoration: underline;
+  }
+
+  .site-footer__base {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.5rem 2rem;
+    margin-top: var(--space-xl);
+    padding-block: var(--space-m);
+    border-top: 1px solid var(--color-border);
+    font-size: var(--step--2);
+    color: var(--color-text-subtle);
+  }
+</style>

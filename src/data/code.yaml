@@ -1,0 +1,35 @@
+# ──────────────────────────────────────────────────────────────────────────
+#  CODE & DATA
+#
+#  Research repositories, replication packages and datasets.
+#  To add one, copy an entry, paste it at the top and edit it.
+#
+#  Required:  title, kind, description, url
+#  Optional:  repo (owner/name), paper (file name of the related paper in
+#             src/content/research, without .md), context, languages (list),
+#             availability, updated (YYYY-MM), doi, license
+#
+#  kind is one of: code, data, replication
+# ──────────────────────────────────────────────────────────────────────────
+
+- title: German news experiment — experimental news website
+  kind: code
+  repo: odbarrerar/germannews_zew
+  url: https://github.com/odbarrerar/germannews_zew
+  paper: confirmation-bias-political-polarization
+  context: Media experiment in Germany with Lora Pavlova and Li Yang (ZEW Mannheim).
+  description: >-
+    Static front end of a mock news portal ("The Latest German News!") with category
+    filtering and headline search, built for the German news experiment.
+  languages: [HTML, CSS, JavaScript]
+  availability: Source code of the experimental interface. No data are included.
+
+- title: German news experiment — companion repository
+  kind: code
+  repo: odbarrerar/germannews
+  url: https://github.com/odbarrerar/germannews
+  paper: confirmation-bias-political-polarization
+  context: Media experiment in Germany with Lora Pavlova and Li Yang (ZEW Mannheim).
+  description: >-
+    Companion repository for the German news experiment.
+  availability: Public repository.

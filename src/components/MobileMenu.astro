@@ -1,0 +1,233 @@
+---
+/**
+ * Small-screen menu built on the native <dialog> element: it traps focus,
+ * closes with Escape and returns focus to the menu button automatically.
+ * Without JavaScript, the button links to the sitemap-like footer navigation.
+ */
+import Icon from './Icon.astro';
+import SocialLinks from './SocialLinks.astro';
+import { NAV, isCurrent } from '../lib/nav';
+import { profile } from '../lib/data';
+
+const pathname = Astro.url.pathname;
+---
+
+<a class="menu-button menu-button--nojs" href="#site-footer-nav">
+  <Icon name="menu" />
+  <span>Menu</span>
+</a>
+<button
+  type="button"
+  class="menu-button js-only"
+  data-menu-open
+  aria-haspopup="dialog"
+  aria-expanded="false"
+  aria-controls="mobile-menu"
+>
+  <Icon name="menu" />
+  <span>Menu</span>
+</button>
+
+<dialog id="mobile-menu" class="menu" aria-label="Site menu">
+  <div class="menu__inner">
+    <div class="menu__top">
+      <a class="menu__home" href="/">{profile.name}</a>
+      <button type="button" class="menu__close" data-menu-close>
+        <Icon name="close" />
+        <span class="visually-hidden">Close menu</span>
+      </button>
+    </div>
+    <nav aria-label="Main">
+      <ul class="menu__list" role="list">
+        <li>
+          <a href="/" class="menu__link" aria-current={pathname === '/' ? 'page' : undefined}>Home</a>
+        </li>
+        {
+          NAV.map((item) => (
+            <li>
+              <a
+                href={item.href}
+                class="menu__link"
+                aria-current={isCurrent(pathname, item.href) ? 'page' : undefined}
+              >
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+    <div class="menu__footer">
+      <a class="menu__email" href={`mailto:${profile.email}`}>{profile.email}</a>
+      <SocialLinks include={['scholar', 'github', 'x', 'bluesky', 'ucd']} variant="footer" />
+    </div>
+  </div>
+</dialog>
+
+<script>
+  const dialog = document.getElementById('mobile-menu') as HTMLDialogElement | null;
+  const opener = document.querySelector<HTMLButtonElement>('[data-menu-open]');
+
+  if (dialog && opener) {
+    const close = () => dialog.close();
+
+    opener.addEventListener('click', () => {
+      dialog.showModal();
+      opener.setAttribute('aria-expanded', 'true');
+      document.documentElement.classList.add('menu-open');
+    });
+
+    dialog.addEventListener('close', () => {
+      opener.setAttribute('aria-expanded', 'false');
+      document.documentElement.classList.remove('menu-open');
+    });
+
+    dialog.querySelector('[data-menu-close]')?.addEventListener('click', close);
+
+    // Click on the backdrop closes the menu
+    dialog.addEventListener('click', (event) => {
+      if (event.target === dialog) close();
+    });
+
+    // Following a link (including same-page anchors) closes the menu
+    dialog.querySelectorAll('a').forEach((a) => a.addEventListener('click', close));
+
+    // Close if the viewport grows to desktop width
+    window.matchMedia('(min-width: 68em)').addEventListener('change', (e) => {
+      if (e.matches && dialog.open) close();
+    });
+  }
+</script>
+
+<style>
+  .menu-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    min-height: 2.75rem;
+    padding: 0 0.9rem;
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-pill);
+    background: transparent;
+    font-size: var(--step--1);
+    font-weight: 560;
+    color: var(--color-text);
+    text-decoration: none;
+  }
+
+  .menu-button:hover {
+    border-color: var(--color-text);
+    color: var(--color-text);
+  }
+
+  :global(.has-js) .menu-button--nojs {
+    display: none;
+  }
+
+  @media (min-width: 68em) {
+    .menu-button,
+    .menu-button--nojs {
+      display: none !important;
+    }
+  }
+
+  .menu {
+    width: 100%;
+    max-width: 100%;
+    height: 100%;
+    max-height: 100%;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: var(--color-bg);
+    color: var(--color-text);
+  }
+
+  .menu::backdrop {
+    background: rgb(0 0 0 / 0.3);
+  }
+
+  .menu[open] {
+    animation: menu-in var(--dur) var(--ease);
+  }
+
+  @keyframes menu-in {
+    from {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+  }
+
+  .menu__inner {
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+    padding: 0 var(--gutter) var(--space-l);
+  }
+
+  .menu__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: var(--header-h);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .menu__home {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    color: var(--color-text);
+    text-decoration: none;
+  }
+
+  .menu__close {
+    display: inline-grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    margin-right: -0.5rem;
+    border: 0;
+    border-radius: var(--radius-pill);
+    background: transparent;
+    color: var(--color-text);
+    font-size: 1.35rem;
+  }
+
+  .menu__list {
+    margin: var(--space-m) 0 0;
+    padding: 0;
+  }
+
+  .menu__link {
+    display: flex;
+    align-items: center;
+    min-height: 3.1rem;
+    font-family: var(--font-display);
+    font-size: clamp(1.45rem, 1.2rem + 1.4vw, 1.9rem);
+    font-weight: 420;
+    color: var(--color-text);
+    text-decoration: none;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .menu__link:hover,
+  .menu__link[aria-current='page'] {
+    color: var(--color-accent);
+  }
+
+  .menu__footer {
+    display: grid;
+    gap: var(--space-s);
+    margin-top: auto;
+    padding-top: var(--space-xl);
+  }
+
+  .menu__email {
+    font-weight: 560;
+    overflow-wrap: anywhere;
+  }
+
+  :global(html.menu-open) {
+    overflow: hidden;
+  }
+</style>

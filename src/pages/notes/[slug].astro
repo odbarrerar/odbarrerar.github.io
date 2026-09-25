@@ -1,0 +1,233 @@
+---
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import { Image } from 'astro:assets';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import Icon from '../../components/Icon.astro';
+import { getPapers, paperUrl } from '../../lib/research';
+import { profile } from '../../lib/data';
+import { formatDate } from '../../lib/format';
+import { blogPostingSchema } from '../../lib/seo';
+
+export async function getStaticPaths() {
+  const notes = await getCollection('notes', ({ data }) => !data.draft);
+  return notes.map((note) => ({ params: { slug: note.id }, props: { note } }));
+}
+
+interface Props {
+  note: CollectionEntry<'notes'>;
+}
+
+const { note } = Astro.props;
+const d = note.data;
+const { Content } = await render(note);
+const site = (Astro.site?.toString() ?? '').replace(/\/$/, '');
+const url = `${site}/notes/${note.id}/`;
+
+const papers = await getPapers();
+const related = d.related_paper ? papers.find((p) => p.id === d.related_paper) : undefined;
+
+const others = (await getCollection('notes', ({ data, id }) => !data.draft && id !== note.id)).slice(0, 2);
+
+const crumbs = [
+  { name: 'Home', href: '/' },
+  { name: 'Notes & Ideas', href: '/notes/' },
+  { name: d.title, href: `/notes/${note.id}/` },
+];
+---
+
+<BaseLayout
+  title={d.title}
+  description={d.description}
+  type="article"
+  breadcrumbs={crumbs}
+  publishedTime={d.date?.toISOString()}
+  jsonLd={[blogPostingSchema({ site, url, title: d.title, description: d.description, date: d.date })]}
+>
+  <article class="note">
+    <header class="note__header">
+      <div class="container container--narrow">
+        <Breadcrumbs items={crumbs} />
+        <p class="eyebrow note__eyebrow">Notes &amp; Ideas</p>
+        <h1 class="note__title">{d.title}</h1>
+        {d.subtitle && <p class="note__subtitle">{d.subtitle}</p>}
+        <p class="note__meta">
+          <span>{profile.name}</span>
+          {d.date && <time datetime={d.date.toISOString().slice(0, 10)}>{formatDate(d.date)}</time>}
+        </p>
+      </div>
+    </header>
+
+    {
+      d.image && (
+        <figure class="container container--narrow note__figure">
+          <Image src={d.image} alt={d.image_alt ?? ''} widths={[480, 800, 1200]} sizes="(min-width: 48em) 48rem, 100vw" />
+        </figure>
+      )
+    }
+
+    <div class="container container--narrow">
+      <div class="prose note__body">
+        <Content />
+      </div>
+
+      {
+        (d.cross_post || related) && (
+          <aside class="note__aside" aria-label="Related">
+            {d.cross_post && (
+              <p>
+                <Icon name="globe" /> Also published on the{' '}
+                <a href={d.cross_post.url}>{d.cross_post.outlet}</a>.
+              </p>
+            )}
+            {related && (
+              <p>
+                <Icon name="file" /> Related paper: <a href={paperUrl(related)}>{related.data.title}</a>
+              </p>
+            )}
+          </aside>
+        )
+      }
+
+      <nav class="note__more" aria-label="More notes">
+        <a href="/notes/" class="note__back">
+          <Icon name="arrow-left" /> All notes
+        </a>
+        {
+          others.length > 0 && (
+            <ul role="list">
+              {others.map((o) => (
+                <li>
+                  <a href={`/notes/${o.id}/`}>{o.data.title}</a>
+                </li>
+              ))}
+            </ul>
+          )
+        }
+      </nav>
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .note__header {
+    padding-top: clamp(2rem, 1.2rem + 3.5vw, 4.5rem);
+    padding-bottom: var(--space-xl);
+  }
+
+  .note__header :global(.breadcrumbs) {
+    margin-bottom: clamp(1.5rem, 1rem + 2vw, 2.5rem);
+  }
+
+  .note__eyebrow {
+    margin-bottom: 1rem;
+  }
+
+  .note__title {
+    font-size: var(--step-4);
+    font-weight: 400;
+    line-height: 1.08;
+    max-width: 22ch;
+  }
+
+  .note__subtitle {
+    margin-top: 0.9rem;
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    font-style: italic;
+    color: var(--color-text-muted);
+  }
+
+  .note__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem 1.25rem;
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--color-border);
+    font-size: var(--step--1);
+    color: var(--color-text-subtle);
+  }
+
+  .note__figure {
+    margin-bottom: var(--space-xl);
+  }
+
+  .note__body {
+    --flow: 1.3em;
+    max-width: none;
+    font-family: var(--font-display);
+    font-size: clamp(1.14rem, 1.08rem + 0.3vw, 1.3rem);
+    line-height: 1.7;
+    color: var(--color-text);
+  }
+
+  .note__body > :global(p:first-of-type::first-letter) {
+    float: left;
+    margin: 0.08em 0.1em 0 0;
+    font-size: 3.4em;
+    line-height: 0.82;
+    font-weight: 400;
+    color: var(--color-accent);
+  }
+
+  .note__body :global(blockquote) {
+    margin-block: 1.6em;
+    font-size: 1.12em;
+  }
+
+  .note__aside {
+    display: grid;
+    gap: 0.6rem;
+    margin-top: var(--space-2xl);
+    padding: var(--space-m);
+    background: var(--color-bg-soft);
+    border-radius: var(--radius-m);
+    font-size: var(--step--1);
+    color: var(--color-text-muted);
+  }
+
+  .note__aside p {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0 0.4em;
+  }
+
+  .note__aside :global(.icon) {
+    color: var(--color-accent);
+  }
+
+  .note__more {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 1rem 2rem;
+    margin-top: var(--space-xl);
+    padding-top: var(--space-l);
+    padding-bottom: var(--space-section);
+    border-top: 1px solid var(--color-border);
+  }
+
+  .note__back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    font-weight: 560;
+    text-decoration: none;
+  }
+
+  .note__more ul {
+    display: grid;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    text-align: right;
+  }
+
+  .note__more ul a {
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    color: var(--color-text);
+  }
+</style>

@@ -1,0 +1,92 @@
+---
+/**
+ * Light/dark toggle. The initial theme is set before first paint by the
+ * inline script in BaseHead (saved choice, otherwise the system setting).
+ */
+import Icon from './Icon.astro';
+
+interface Props {
+  class?: string;
+}
+const { class: className } = Astro.props;
+---
+
+<button type="button" class:list={['theme-toggle', 'js-only', className]} data-theme-toggle aria-pressed="false">
+  <Icon name="moon" class="theme-toggle__icon theme-toggle__icon--moon" />
+  <Icon name="sun" class="theme-toggle__icon theme-toggle__icon--sun" />
+  <span class="visually-hidden">Dark theme</span>
+</button>
+
+<script>
+  const root = document.documentElement;
+  const media = window.matchMedia('(prefers-color-scheme: dark)');
+
+  function current(): 'light' | 'dark' {
+    const set = root.dataset.theme;
+    if (set === 'light' || set === 'dark') return set;
+    return media.matches ? 'dark' : 'light';
+  }
+
+  function sync() {
+    const dark = current() === 'dark';
+    document.querySelectorAll<HTMLButtonElement>('[data-theme-toggle]').forEach((btn) => {
+      btn.setAttribute('aria-pressed', String(dark));
+      btn.title = dark ? 'Switch to light theme' : 'Switch to dark theme';
+    });
+  }
+
+  document.querySelectorAll<HTMLButtonElement>('[data-theme-toggle]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const next = current() === 'dark' ? 'light' : 'dark';
+      root.dataset.theme = next;
+      try {
+        localStorage.setItem('theme', next);
+      } catch {
+        /* storage unavailable: the choice lasts for this page view */
+      }
+      sync();
+    });
+  });
+
+  media.addEventListener('change', sync);
+  sync();
+</script>
+
+<style>
+  .theme-toggle {
+    display: inline-grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 1px solid transparent;
+    border-radius: var(--radius-pill);
+    background: transparent;
+    color: var(--color-text-muted);
+    transition:
+      color var(--dur-fast) var(--ease),
+      border-color var(--dur-fast) var(--ease);
+  }
+
+  .theme-toggle:hover {
+    color: var(--color-text);
+    border-color: var(--color-border-strong);
+  }
+
+  .theme-toggle :global(.theme-toggle__icon) {
+    grid-area: 1 / 1;
+    width: 1.15rem;
+    height: 1.15rem;
+  }
+
+  .theme-toggle :global(.theme-toggle__icon--sun) {
+    display: none;
+  }
+
+  .theme-toggle[aria-pressed='true'] :global(.theme-toggle__icon--sun) {
+    display: block;
+  }
+
+  .theme-toggle[aria-pressed='true'] :global(.theme-toggle__icon--moon) {
+    display: none;
+  }
+</style>

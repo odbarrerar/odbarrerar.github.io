@@ -1,0 +1,441 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/Hero.astro';
+import SectionHeader from '../components/SectionHeader.astro';
+import ResearchCard from '../components/ResearchCard.astro';
+import AuthorList from '../components/AuthorList.astro';
+import EventCard from '../components/EventCard.astro';
+import MediaItem from '../components/MediaItem.astro';
+import SocialLinks from '../components/SocialLinks.astro';
+import Tag from '../components/Tag.astro';
+import Icon from '../components/Icon.astro';
+import { media, news, profile, talks, themes } from '../lib/data';
+import { STATUS_LABEL, featured, getPapers, groupOf, paperUrl } from '../lib/research';
+import { formatPartialDate } from '../lib/format';
+import { profilePageSchema } from '../lib/seo';
+
+const papers = await getPapers();
+const featuredPapers = featured(papers).slice(0, 4);
+const current = papers.filter(
+  (p) => !p.data.featured && ['working-paper', 'submitted', 'work-in-progress'].includes(p.data.status),
+);
+const countByTheme = new Map(themes.map((t) => [t.id, papers.filter((p) => p.data.topics.includes(t.id)).length]));
+
+const latestNews = news.slice(0, 5);
+const recentTalks = [...talks]
+  .sort((a, b) => (b.date ?? `${b.year}`).localeCompare(a.date ?? `${a.year}`) || b.year - a.year)
+  .slice(0, 4);
+const latestWriting = media
+  .filter((m) => m.type === 'blog' || m.type === 'commentary' || m.type === 'policy')
+  .filter((m) => m.date)
+  .sort((a, b) => (b.date ?? '').localeCompare(a.date ?? ''))
+  .slice(0, 3);
+
+const site = (Astro.site?.toString() ?? '').replace(/\/$/, '');
+const paperTitle = new Map(papers.map((p) => [p.id, { title: p.data.title, href: paperUrl(p) }]));
+---
+
+<BaseLayout type="profile" jsonLd={[profilePageSchema(site, `${site}/`)]}>
+  <Hero />
+
+  <!-- A. Research themes -->
+  <section class="section home-themes" aria-labelledby="themes-title">
+    <div class="container">
+      <SectionHeader
+        id="themes-title"
+        number="01"
+        eyebrow="Research"
+        title="Research themes"
+        intro="My work combines survey and field experiments with electoral, administrative and financial data. It is organised around four themes."
+        href="/research/"
+        linkLabel="All research"
+      />
+      <ol class="themes" role="list">
+        {
+          themes.map((t, i) => (
+            <li class="theme">
+              <p class="theme__num num" aria-hidden="true">{String(i + 1).padStart(2, '0')}</p>
+              <h3 class="theme__title">{t.title}</h3>
+              <p class="theme__desc">{t.description}</p>
+              <a class="theme__link" href={`/research/?theme=${t.id}`}>
+                {countByTheme.get(t.id)} {countByTheme.get(t.id) === 1 ? 'paper' : 'papers'}
+                <span class="visually-hidden"> on {t.title.toLowerCase()}</span>
+                <Icon name="arrow-right" />
+              </a>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <!-- B. Featured research -->
+  <section class="section" aria-labelledby="featured-title">
+    <div class="container">
+      <SectionHeader
+        id="featured-title"
+        number="02"
+        eyebrow="Selected work"
+        title="Featured research"
+        href="/publications/"
+        linkLabel="All publications"
+      />
+      <div class="featured">
+        {featuredPapers.map((p, i) => <ResearchCard paper={p} variant={i === 0 ? 'feature' : 'default'} />)}
+      </div>
+    </div>
+  </section>
+
+  <!-- C. Current research -->
+  {
+    current.length > 0 && (
+      <section class="section section--soft" aria-labelledby="current-title">
+        <div class="container">
+          <SectionHeader
+            id="current-title"
+            number="03"
+            eyebrow="In progress"
+            title="Current research"
+            href="/research/#working"
+            linkLabel="Working papers"
+          />
+          <ul class="current" role="list">
+            {current.map((p) => (
+              <li class="current__item">
+                <Tag variant="status" marker={groupOf(p.data.status)}>
+                  {STATUS_LABEL[p.data.status]}
+                </Tag>
+                <h3 class="current__title">
+                  <a href={paperUrl(p)}>{p.data.title}</a>
+                </h3>
+                <AuthorList authors={p.data.authors} />
+                <p class="current__summary">{p.data.summary}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+    )
+  }
+
+  <!-- D. Latest news and talks -->
+  <section class="section" aria-labelledby="latest-title">
+    <div class="container">
+      <SectionHeader id="latest-title" number="04" eyebrow="Latest" title="News and talks" />
+      <div class="latest">
+        <div>
+          <h3 class="latest__heading label">Updates</h3>
+          <ol class="news" role="list">
+            {
+              latestNews.map((n) => (
+                <li class="news__item">
+                  <time class="news__date num" datetime={n.date}>
+                    {formatPartialDate(n.date, 'short')}
+                  </time>
+                  <p class="news__text">{n.url ? <a href={n.url}>{n.text}</a> : n.text}</p>
+                </li>
+              ))
+            }
+          </ol>
+        </div>
+        <div>
+          <div class="latest__head">
+            <h3 class="latest__heading label">Recent talks</h3>
+            <a class="latest__more" href="/talks/">
+              All talks <Icon name="arrow-right" />
+            </a>
+          </div>
+          <ol class="talks" role="list">
+            {recentTalks.map((t) => <EventCard talk={t} showYear paper={t.paper ? paperTitle.get(t.paper) : undefined} />)}
+          </ol>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- E. Writing & media -->
+  {
+    latestWriting.length > 0 && (
+      <section class="section" aria-labelledby="writing-title">
+        <div class="container">
+          <SectionHeader
+            id="writing-title"
+            number="05"
+            eyebrow="Writing & media"
+            title="For a wider audience"
+            href="/writing/"
+            linkLabel="All writing"
+          />
+          <div class="writing">
+            {latestWriting.map((m) => (
+              <MediaItem item={m} variant="card" />
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  <!-- Contact -->
+  <section class="section contact-band" aria-labelledby="contact-title">
+    <div class="container contact-band__grid">
+      <div>
+        <p class="eyebrow">Contact</p>
+        <h2 id="contact-title" class="contact-band__title">Get in touch</h2>
+        <p class="contact-band__text muted">
+          For research collaborations, seminar invitations and media requests, email is the best way to reach me.
+        </p>
+      </div>
+      <div>
+        <a class="contact-band__email" href={`mailto:${profile.email}`}>{profile.email}</a>
+        {profile.office && <p class="contact-band__office muted">{profile.office}</p>}
+        <SocialLinks include={['ucd', 'scholar', 'github', 'x', 'bluesky']} class="contact-band__links" />
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .section--soft {
+    background: var(--color-bg-soft);
+  }
+
+  /* Themes */
+  .themes {
+    display: grid;
+    gap: 0 clamp(2rem, 5vw, 4.5rem);
+    margin: 0;
+    padding: 0;
+  }
+
+  @media (min-width: 48em) {
+    .themes {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .theme {
+    display: grid;
+    grid-template-columns: 2.75rem minmax(0, 1fr);
+    grid-template-areas:
+      'num title'
+      '. desc'
+      '. link';
+    column-gap: 0.75rem;
+    padding-block: 1.75rem;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .theme__num {
+    grid-area: num;
+    padding-top: 0.35rem;
+    font-family: var(--font-display);
+    font-size: var(--step-0);
+    color: var(--color-accent);
+  }
+
+  .theme__title {
+    grid-area: title;
+    font-size: var(--step-2);
+    font-weight: 440;
+  }
+
+  .theme__desc {
+    grid-area: desc;
+    margin-top: 0.7rem;
+    color: var(--color-text-muted);
+  }
+
+  .theme__link {
+    grid-area: link;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    justify-self: start;
+    min-height: 2.5rem;
+    margin-top: 0.4rem;
+    font-size: var(--step--1);
+    font-weight: 560;
+    text-decoration: none;
+  }
+
+  .theme__link:hover {
+    text-decoration: underline;
+  }
+
+  /* Featured */
+  .featured > :global(.rcard:first-child) {
+    border-top-color: var(--color-text);
+  }
+
+  /* Current research */
+  .current {
+    display: grid;
+    gap: clamp(1.5rem, 3vw, 2.5rem);
+    margin: 0;
+    padding: 0;
+  }
+
+  @media (min-width: 56em) {
+    .current {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  .current__item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    padding-top: 1.25rem;
+    border-top: 2px solid var(--color-text);
+  }
+
+  .current__title {
+    font-size: var(--step-1);
+    font-weight: 470;
+    line-height: 1.3;
+  }
+
+  .current__title a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .current__title a:hover {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+  }
+
+  .current__summary {
+    font-size: var(--step--1);
+    color: var(--color-text-muted);
+  }
+
+  /* Latest */
+  .latest {
+    display: grid;
+    gap: var(--space-xl);
+  }
+
+  @media (min-width: 60em) {
+    .latest {
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+      gap: clamp(2.5rem, 5vw, 5rem);
+    }
+  }
+
+  .latest__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .latest__heading {
+    margin-bottom: 0.75rem;
+    font-family: var(--font-text);
+  }
+
+  .latest__more {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35em;
+    font-size: var(--step--1);
+    font-weight: 560;
+    text-decoration: none;
+  }
+
+  .news,
+  .talks {
+    margin: 0;
+    padding: 0;
+  }
+
+  .news__item {
+    display: grid;
+    grid-template-columns: 5.5rem minmax(0, 1fr);
+    gap: var(--space-m);
+    padding-block: 1.05rem;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .news__date {
+    padding-top: 0.1rem;
+    font-size: var(--step--1);
+    color: var(--color-text-subtle);
+  }
+
+  .news__text a {
+    color: var(--color-text);
+    text-decoration-color: var(--color-border-strong);
+  }
+
+  .news__text a:hover {
+    color: var(--color-accent);
+    text-decoration-color: currentColor;
+  }
+
+  /* Writing */
+  .writing {
+    display: grid;
+    gap: var(--space-l) clamp(1.5rem, 3vw, 2.5rem);
+  }
+
+  @media (min-width: 56em) {
+    .writing {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  /* Contact */
+  .contact-band {
+    background: var(--color-bg-soft);
+  }
+
+  .contact-band__grid {
+    display: grid;
+    gap: var(--space-l);
+  }
+
+  @media (min-width: 56em) {
+    .contact-band__grid {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      align-items: end;
+    }
+  }
+
+  .contact-band__title {
+    margin-top: 0.75rem;
+  }
+
+  .contact-band__text {
+    margin-top: 1rem;
+    max-width: 30rem;
+  }
+
+  .contact-band__email {
+    display: inline-block;
+    font-family: var(--font-display);
+    font-size: clamp(1.3rem, 0.9rem + 1.9vw, 2.1rem);
+    line-height: 1.2;
+    color: var(--color-text);
+    text-decoration-thickness: 1px;
+    text-decoration-color: var(--color-border-strong);
+    overflow-wrap: anywhere;
+  }
+
+  .contact-band__email:hover {
+    color: var(--color-accent);
+    text-decoration-color: currentColor;
+  }
+
+  .contact-band__office {
+    margin-top: 0.75rem;
+    font-size: var(--step--1);
+  }
+
+  .contact-band :global(.contact-band__links) {
+    margin-top: 1rem;
+  }
+</style>

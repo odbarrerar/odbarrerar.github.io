@@ -1,0 +1,124 @@
+# ──────────────────────────────────────────────────────────────────────────
+#  PROFILE: your name, position, biography, contact details and links.
+#
+#  This is the only file you need to edit to change your biography,
+#  affiliation, email or social links. Keep the indentation as it is.
+#  Text after a ">-" or "|" continues on the following indented lines.
+#  Leave a value empty ("") to hide it from the site.
+# ──────────────────────────────────────────────────────────────────────────
+
+name: Oscar Barrera Rodríguez
+full_name: Oscar David Barrera Rodríguez
+
+# Other spellings of your name used in publications. Used to highlight you
+# in author lists and to help search engines connect your work.
+alternate_names:
+  - Oscar Barrera-Rodríguez
+  - Oscar Barrera Rodriguez
+  - Oscar Barrera-Rodriguez
+  - Oscar Barrera
+  - Oscar David Barrera Rodríguez
+
+position: Senior Research Fellow
+institution: University College Dublin
+institution_short: UCD
+institution_url: https://www.ucd.ie/
+department: School of Politics and International Relations (SPIRe)
+department_url: https://www.ucd.ie/spire/
+
+project:
+  name: Democracy Challenged
+  funder: European Research Council (ERC)
+  grant: ERC Consolidator Grant 101125672
+  url: https://democracychallenged.com/
+
+other_affiliations:
+  - role: Research Fellow
+    organisation: World Inequality Lab
+    city: Paris
+    url: https://wid.world/member/oscar-barrera/
+
+# One line used in search results and link previews (max. ~155 characters).
+seo_description: >-
+  Oscar Barrera Rodríguez, Senior Research Fellow at University College Dublin: political
+  economy, public economics, inequality, taxation and disinformation.
+
+# Short statement shown in the homepage hero (2–4 lines).
+statement: >-
+  My research sits at the intersection of political economy and public economics,
+  drawing on behavioural economics to study social inequality, disinformation and
+  political cleavages. My current work, within the ERC-funded Democracy Challenged
+  project, examines corporate taxation, market power and the concentration of wealth.
+
+# Biography shown on the About page. Separate paragraphs with a blank line.
+bio: |
+  I am a Senior Research Fellow at University College Dublin's School of Politics and International Relations (SPIRe), where I work on Democracy Challenged, a project funded by a European Research Council Consolidator Grant. I am also a Research Fellow at the World Inequality Lab in Paris.
+
+  My research sits at the intersection of political economy and public economics, and draws on behavioural economics to study social inequality, disinformation and political cleavages. Much of this work relies on survey and field experiments: how voters respond to "alternative facts" and to fact-checking, how information about the income sources of the top 1 percent shapes attitudes toward the rich, and whether text messages to parents improve early childhood development in rural Nicaragua. My current work examines corporate tax avoidance, market power and the concentration of wealth among the largest corporate groups.
+
+  I earned my Ph.D. in Economics (2020) and a Master's in Public Policy and Development (2014) from the Paris School of Economics, after an MA in Economic Development and Growth at Universidad Carlos III de Madrid and undergraduate studies at the Universidad Nacional de Colombia. Before joining UCD, I was a postdoctoral researcher at CY Cergy Paris Université (THEMA/CNRS) and an economist working on migration at CEPII in Paris.
+
+research_interests:
+  - Political economy
+  - Public economics
+  - Behavioural economics
+  - Development economics
+  - Taxation and wealth concentration
+  - Disinformation and political cleavages
+
+languages:
+  - Spanish (native)
+  - English (fluent)
+  - French (fluent)
+
+# ── Contact ────────────────────────────────────────────────────────────────
+email: oscar.barrerarodriguez@ucd.ie
+office: G313, Newman Building, University College Dublin, Belfield, Dublin 4, Ireland
+
+# ── CV ─────────────────────────────────────────────────────────────────────
+# Put the PDF in  public/files/  and write its path here (starting with /files/),
+# or paste a full link (e.g. Dropbox). The "Download CV" buttons use this.
+cv:
+  url: https://www.dropbox.com/scl/fi/nbshr74c64ngnafzd9zz5/CV_Barrera_2026.pdf?rlkey=7zwdsc5adq4o55n9sk4yfajds&st=k31annso&dl=0
+  updated: "2026"
+
+# ── Links ──────────────────────────────────────────────────────────────────
+# Leave a link empty ("") to hide it everywhere on the site.
+links:
+  ucd: https://people.ucd.ie/oscar.barrerarodriguez
+  scholar: https://scholar.google.com/citations?user=ECr7HRwAAAAJ
+  github: https://github.com/odbarrerar
+  x: https://x.com/odbarrerar
+  bluesky: ""
+  democracy_challenged: https://democracychallenged.com/author/oscarbarrerarodriguez/
+  wid: https://wid.world/member/oscar-barrera/
+
+# Handle used for X/Twitter link previews (without @). Leave empty to omit.
+x_handle: odbarrerar
+
+# ── Page introductions ─────────────────────────────────────────────────────
+# The short paragraph under the title of each page.
+page_intros:
+  research: >-
+    My research combines survey and field experiments with electoral, administrative and
+    firm-level financial data. Papers are grouped by theme below; each has its own page with the
+    abstract, links and citation.
+  publications: >-
+    A complete list of publications, working papers and work in progress. Filter by status or
+    theme, and export any entry as a citation or BibTeX.
+  cv: >-
+    A web version of my curriculum vitae. The PDF has the complete record.
+  teaching: >-
+    Courses in economics and quantitative methods taught in France, at undergraduate and
+    master's level, in French and English.
+  talks: >-
+    Seminars, conferences and workshops where I have presented my work.
+  writing: >-
+    Blog posts, commentary and coverage of my research for a general audience, in English and
+    Spanish.
+  code: >-
+    Research code, experimental materials and data. Replication packages are added here as
+    papers are published.
+  notes: >-
+    Hello dear visitors! Here, I just would like to share some fun connections between various
+    art forms, personal tales, sports, games, or whatever with my own research. Enjoy exploring!

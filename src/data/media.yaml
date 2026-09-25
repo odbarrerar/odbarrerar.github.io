@@ -1,0 +1,118 @@
+# ──────────────────────────────────────────────────────────────────────────
+#  WRITING & MEDIA
+#
+#  Blog posts, commentary, policy columns, interviews and media coverage.
+#  To add an item, copy an entry, paste it at the top of its group and edit.
+#
+#  Required:  title, outlet, type, url
+#  Optional:  date (YYYY-MM-DD), coauthors (list), language (en, es, fr),
+#             summary (one line), paper (file name of a related paper in
+#             src/content/research, without .md)
+#
+#  type is one of:
+#    blog        – posts on a research or project blog
+#    commentary  – op-eds and opinion pieces in newspapers and magazines
+#    policy      – policy columns (e.g. VoxEU) and policy briefs
+#    coverage    – articles about your research, interviews, podcasts
+#    profile     – a page listing all your pieces at an outlet
+# ──────────────────────────────────────────────────────────────────────────
+
+# ── Democracy Challenged blog ─────────────────────────────────────────────
+- title: The Unexpected Virtue of Doubting
+  outlet: Democracy Challenged blog
+  type: blog
+  date: 2026-04-24
+  language: en
+  url: https://democracychallenged.com/2026/04/24/the-unexpected-virtue-of-doubting/
+  summary: On information oversaturation, the logic of immediacy, and why forming an opinion takes time.
+
+- title: "Winners Take All: How Corporate Tax Cuts Weakened the Anchor of the Top 0.001%"
+  outlet: Democracy Challenged blog
+  type: blog
+  date: 2026-01-05
+  language: en
+  url: https://democracychallenged.com/2026/01/05/winners-take-all-how-corporate-tax-cuts-weakened-the-anchor-of-the-top-0-001/
+  summary: How falling corporate income tax rates weakened a historical constraint on the accumulation of extreme wealth.
+  paper: winner-takes-all
+
+- title: "Winner Takes All: How Corporate Tax Policy is Manufacturing Billionaire Wealth"
+  outlet: Democracy Challenged blog
+  type: blog
+  date: 2025-12-09
+  coauthors: [Aidan Regan]
+  language: en
+  url: https://democracychallenged.com/2025/12/09/winner-takes-all-how-corporate-tax-policy-is-manufacturing-billionaire-wealth/
+  summary: Profit concentration among the largest US corporations and its link to billionaire wealth.
+  paper: winner-takes-all
+
+- title: From Creative Destruction to Winner Takes All – A Commentary on the Nobel Prize and the Role of the State in Innovation
+  outlet: Democracy Challenged blog
+  type: blog
+  date: 2025-10-16
+  coauthors: [Linus Zechlin]
+  language: en
+  url: https://democracychallenged.com/2025/10/16/from-creative-destruction-to-winner-takes-all-a-commentary-on-the-nobel-prize-and-the-role-of-the-state-in-innovation/
+  summary: From Schumpeterian creative destruction to the absorption of innovation by dominant firms.
+
+- title: Profits, Taxes and the Accumulation of Billionaire Wealth
+  outlet: Democracy Challenged blog
+  type: blog
+  date: 2025-10-09
+  coauthors: [Aidan Regan]
+  language: en
+  url: https://democracychallenged.com/2025/10/09/profits-taxes-and-the-accumulation-of-billionaire-wealth/
+  summary: Corporate profits, declining effective tax rates and the growth of billionaire fortunes since the 1990s.
+  paper: profit-taxes-billionaire-wealth
+
+- title: "From Brave New World to Apple vs. Brussels: How Media Fragmentation Shapes Our Reality"
+  outlet: Democracy Challenged blog
+  type: blog
+  date: 2025-05-13
+  coauthors: [Lakshmi Menon, Aidan Regan]
+  language: en
+  url: https://democracychallenged.com/2025/05/13/from-brave-new-world-to-apple-vs-brussels-how-media-fragmentation-shapes-our-reality/
+  summary: How news coverage in six countries turned the Apple €13 billion tax ruling into divergent narratives.
+
+# ── Commentary (in Spanish) ───────────────────────────────────────────────
+- title: "De la destrucción creativa a la apropiación creativa: cómo la innovación se quedó en pocas manos"
+  outlet: Revista Economía Colombiana
+  type: commentary
+  language: es
+  url: https://revistaeconomiacolombiana.com/edicion_378_como_la_innovacion_se_quedo_en_pocas_manos/
+
+- title: Colombia, es la hora de la redistribución
+  outlet: Portafolio
+  type: commentary
+  language: es
+  url: https://www.portafolio.co/economia/colombia-es-la-hora-de-la-redistribucion-thomas-piketty-562033
+
+- title: Thomas Piketty un economista superstar ¿cómo llegamos a esto?
+  outlet: La República
+  type: commentary
+  language: es
+  url: https://www.larepublica.co/opinion/analistas/thomas-piketty-un-economista-superstar-como-llegamos-a-esto-2217876
+
+- title: Articles in Agenda Pública
+  outlet: Agenda Pública (El País)
+  type: profile
+  language: es
+  url: https://agendapublica.elpais.com/noticias/autor/1277/oscar-barrera
+
+# ── Research coverage ─────────────────────────────────────────────────────
+- title: How much does knowing where their money comes from affect what we think about the top 1%?
+  outlet: World Inequality Database
+  type: coverage
+  date: 2023-10-17
+  coauthors: [Emmanuel Chávez]
+  language: en
+  url: https://wid.world/news-article/capital-vs-labour/
+  paper: capital-vs-labour-top-1-percent
+
+- title: Political Cleavages in Latin America
+  outlet: World Inequality Database
+  type: coverage
+  date: 2021-03-26
+  coauthors: [Ana Leiva, Clara Martínez-Toledano, Álvaro Zúñiga-Cordero]
+  language: en
+  url: https://wid.world/news-article/political-cleavages-in-latin-america/
+  paper: political-cleavages-latin-america

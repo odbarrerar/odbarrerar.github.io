@@ -1,0 +1,43 @@
+# ──────────────────────────────────────────────────────────────────────────
+#  NEWS — short updates shown on the homepage ("Latest").
+#
+#  Newest first. The homepage shows the five most recent items.
+#  Required:  date ("2026", "2026-05" or "2026-05-23"), text
+#  Optional:  url (internal like /research/... or external), label, kind
+#  kind is one of: publication, talk, paper, writing, other
+# ──────────────────────────────────────────────────────────────────────────
+
+- date: 2026-09
+  kind: talk
+  text: Presented at the 122nd APSA Annual Meeting in Boston.
+  url: /talks/
+
+- date: 2026-04-24
+  kind: writing
+  text: New essay, "The Unexpected Virtue of Doubting", on the Democracy Challenged blog.
+  url: /notes/the-unexpected-virtue-of-doubting/
+
+- date: 2026-03-26
+  kind: talk
+  text: Webinar Economía at Universidad del Rosario, Bogotá.
+  url: /talks/
+
+- date: "2026"
+  kind: publication
+  text: "\"Texting Parents about Early Child Development\" is published in the Journal of Development Economics."
+  url: /research/texting-parents-early-child-development/
+
+- date: 2025-07
+  kind: paper
+  text: "New working paper: \"Confirmation Bias and Asymmetric Political Polarization: Evidence from a Media Experiment in Germany\"."
+  url: /research/confirmation-bias-political-polarization/
+
+- date: 2025-06
+  kind: publication
+  text: "\"Capital vs. labour\" is published in the European Journal of Political Economy."
+  url: /research/capital-vs-labour-top-1-percent/
+
+- date: 2025-06
+  kind: publication
+  text: "\"Second-generation immigrants and native attitudes toward immigrants in Europe\" appears in Migration Studies 13(2)."
+  url: /research/second-generation-immigrants-attitudes-europe/

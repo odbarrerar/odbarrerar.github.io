@@ -1,0 +1,208 @@
+---
+import PageLayout from '../../layouts/PageLayout.astro';
+import ResearchCard from '../../components/ResearchCard.astro';
+import FilterBar from '../../components/FilterBar.astro';
+import Icon from '../../components/Icon.astro';
+import { profile, themes } from '../../lib/data';
+import { byGroup, collaborators, getPapers } from '../../lib/research';
+
+const papers = await getPapers();
+const groups = byGroup(papers).filter((g) => g.papers.length > 0);
+const people = collaborators(papers);
+const themeOptions = themes.map((t) => ({
+  value: t.id,
+  label: t.short,
+  count: papers.filter((p) => p.data.topics.includes(t.id)).length,
+}));
+---
+
+<PageLayout
+  title="Research"
+  intro={profile.page_intros.research}
+  description="Research by Oscar Barrera Rodríguez on corporate taxation and wealth concentration, disinformation, political cleavages, migration and child development."
+>
+  <nav slot="header" class="jump" aria-label="On this page">
+    <ul role="list">
+      {
+        groups.map((g) => (
+          <li>
+            <a href={`#${g.id}`}>
+              {g.label} <span class="num">{g.papers.length}</span>
+            </a>
+          </li>
+        ))
+      }
+      <li><a href="#collaborators">Collaborators <span class="num">{people.length}</span></a></li>
+      <li><a href="/publications/">Citation list <Icon name="arrow-right" /></a></li>
+    </ul>
+  </nav>
+
+  <div class="container research" data-filter-scope data-filter-noun="papers">
+    <div class="research__toolbar">
+      <FilterBar label="Theme" filterKey="topics" options={themeOptions} id="filter-theme" />
+      <p class="research__count js-only" data-filter-count aria-live="polite"></p>
+    </div>
+
+    {
+      themes.map((t) => (
+        <div class="theme-note" data-filter-note data-note-key="topics" data-note-value={t.id} hidden>
+          <h2 class="theme-note__title">{t.title}</h2>
+          <p class="theme-note__text">{t.description}</p>
+        </div>
+      ))
+    }
+
+    {
+      groups.map((g) => (
+        <section class="research__group" id={g.id} data-filter-section aria-labelledby={`h-${g.id}`}>
+          <h2 id={`h-${g.id}`} class="research__heading">
+            {g.label}
+          </h2>
+          <div>
+            {g.papers.map((p) => (
+              <ResearchCard paper={p} level={3} />
+            ))}
+          </div>
+        </section>
+      ))
+    }
+
+    <p class="research__empty" data-filter-empty hidden>No papers match this theme yet.</p>
+
+    <section class="research__group" id="collaborators" aria-labelledby="h-collaborators">
+      <h2 id="h-collaborators" class="research__heading">Collaborators</h2>
+      <p class="muted research__collab-intro">
+        Co-authors on the papers above, most frequent first.
+      </p>
+      <ul class="collab" role="list">
+        {
+          people.map((c) => (
+            <li>
+              {c.name}
+              {c.count > 1 && <span class="collab__count num">×{c.count}</span>}
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+  </div>
+</PageLayout>
+
+<script>
+  import '../../scripts/filters';
+</script>
+
+<style>
+  .jump ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1.5rem;
+    margin: 0;
+    padding: 0;
+  }
+
+  .jump a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45em;
+    min-height: 2.5rem;
+    font-size: var(--step--1);
+    font-weight: 560;
+    color: var(--color-text);
+    text-decoration: none;
+    border-bottom: 1px solid var(--color-border-strong);
+  }
+
+  .jump a:hover {
+    color: var(--color-accent);
+    border-color: var(--color-accent);
+  }
+
+  .jump .num {
+    color: var(--color-text-subtle);
+    font-weight: 400;
+  }
+
+  .research {
+    padding-top: var(--space-xl);
+    padding-bottom: var(--space-section);
+  }
+
+  .research__toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem 2rem;
+    margin-bottom: var(--space-l);
+  }
+
+  .research__count {
+    font-size: var(--step--1);
+    color: var(--color-text-subtle);
+  }
+
+  .theme-note {
+    margin-bottom: var(--space-xl);
+    padding: var(--space-m) var(--space-l);
+    border-left: 2px solid var(--color-accent);
+    background: var(--color-bg-soft);
+  }
+
+  .theme-note__title {
+    font-size: var(--step-2);
+  }
+
+  .theme-note__text {
+    margin-top: 0.6rem;
+    max-width: 44rem;
+    color: var(--color-text-muted);
+  }
+
+  .research__group + .research__group {
+    margin-top: var(--space-2xl);
+  }
+
+  .research__heading {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6em;
+    margin-bottom: var(--space-s);
+    font-size: var(--step-3);
+  }
+
+  .research__empty {
+    padding: var(--space-l) 0;
+    color: var(--color-text-muted);
+  }
+
+  .research__collab-intro {
+    margin-bottom: var(--space-m);
+  }
+
+  .collab {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+    gap: 0;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .collab li {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.7rem 1rem 0.7rem 0;
+    border-bottom: 1px solid var(--color-border);
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+  }
+
+  .collab__count {
+    font-family: var(--font-text);
+    font-size: var(--step--1);
+    color: var(--color-text-subtle);
+  }
+</style>

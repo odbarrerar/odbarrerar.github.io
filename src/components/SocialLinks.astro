@@ -1,0 +1,140 @@
+---
+/**
+ * Profile and social links, read from src/data/profile.yaml.
+ * Empty links in the profile file are skipped automatically.
+ */
+import Icon, { type IconName } from './Icon.astro';
+import { profile } from '../lib/data';
+
+type Key = 'email' | 'ucd' | 'scholar' | 'github' | 'x' | 'bluesky' | 'democracy_challenged' | 'wid' | 'orcid' | 'ssrn' | 'linkedin';
+
+interface Props {
+  include?: Key[];
+  variant?: 'row' | 'list' | 'footer';
+  class?: string;
+  label?: string;
+}
+
+const {
+  include = ['email', 'ucd', 'scholar', 'github', 'x', 'bluesky'],
+  variant = 'row',
+  class: className,
+  label = 'Profiles',
+} = Astro.props;
+
+const meta: Record<Key, { label: string; icon: IconName; hint?: string }> = {
+  email: { label: 'Email', icon: 'mail', hint: profile.email },
+  ucd: { label: 'UCD profile', icon: 'building', hint: 'University College Dublin' },
+  scholar: { label: 'Google Scholar', icon: 'scholar', hint: 'Citations and publications' },
+  github: { label: 'GitHub', icon: 'repo', hint: 'Research code' },
+  x: { label: 'X', icon: 'at', hint: '@' + (profile.x_handle ?? '') },
+  bluesky: { label: 'Bluesky', icon: 'bubble' },
+  democracy_challenged: { label: 'Democracy Challenged', icon: 'globe', hint: 'ERC project blog' },
+  wid: { label: 'World Inequality Lab', icon: 'globe', hint: 'Research fellow' },
+  orcid: { label: 'ORCID', icon: 'globe' },
+  ssrn: { label: 'SSRN', icon: 'file' },
+  linkedin: { label: 'LinkedIn', icon: 'globe' },
+};
+
+const items = include
+  .map((key) => {
+    const href = key === 'email' ? `mailto:${profile.email}` : profile.links[key as keyof typeof profile.links];
+    return href ? { key, href, ...meta[key] } : null;
+  })
+  .filter((x): x is NonNullable<typeof x> => x !== null);
+---
+
+<ul class:list={['social', `social--${variant}`, className]} role="list" aria-label={label}>
+  {
+    items.map((item) => (
+      <li>
+        <a href={item.href} class="social__link">
+          <Icon name={item.icon} class="social__icon" />
+          <span class="social__label">{item.label}</span>
+          {variant === 'list' && item.hint && <span class="social__hint">{item.hint}</span>}
+        </a>
+      </li>
+    ))
+  }
+</ul>
+
+<style>
+  .social {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem 1.35rem;
+    margin: 0;
+    padding: 0;
+  }
+
+  .social__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    min-height: 2.75rem;
+    font-size: var(--step--1);
+    font-weight: 540;
+    color: var(--color-text-muted);
+    text-decoration: none;
+  }
+
+  .social__link:hover {
+    color: var(--color-accent);
+  }
+
+  .social :global(.social__icon) {
+    width: 1.1em;
+    height: 1.1em;
+    color: var(--color-accent);
+  }
+
+  .social--footer {
+    gap: 0.2rem 1.1rem;
+  }
+
+  .social--footer .social__link {
+    min-height: 2.5rem;
+    font-weight: 500;
+  }
+
+  .social--footer :global(.social__icon) {
+    color: currentColor;
+    opacity: 0.8;
+  }
+
+  .social--list {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .social--list li {
+    border-top: 1px solid var(--color-border);
+  }
+
+  .social--list li:last-child {
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .social--list .social__link {
+    display: grid;
+    grid-template-columns: 1.5rem minmax(0, 1fr) auto;
+    width: 100%;
+    min-height: 3.25rem;
+    font-size: var(--step-0);
+    color: var(--color-text);
+  }
+
+  .social--list .social__hint {
+    font-size: var(--step--1);
+    font-weight: 400;
+    color: var(--color-text-subtle);
+    text-align: right;
+    overflow-wrap: anywhere;
+  }
+
+  .social--list .social__link:hover .social__label {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+</style>

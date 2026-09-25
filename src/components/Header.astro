@@ -1,0 +1,132 @@
+---
+/** Sticky site header. Becomes slightly more compact once the page scrolls. */
+import MobileMenu from './MobileMenu.astro';
+import Navigation from './Navigation.astro';
+import ThemeToggle from './ThemeToggle.astro';
+import { profile } from '../lib/data';
+
+const isHome = Astro.url.pathname === '/';
+---
+
+<div class="scroll-sentinel" data-scroll-sentinel aria-hidden="true"></div>
+<header class="site-header" data-site-header>
+  <div class="container site-header__inner">
+    <a class="wordmark" href="/" aria-current={isHome ? 'page' : undefined}>
+      <span class="wordmark__name">{profile.name}</span>
+      <span class="wordmark__role">{profile.position} · {profile.institution_short ?? profile.institution}</span>
+    </a>
+    <div class="site-header__actions">
+      <Navigation />
+      <ThemeToggle />
+      <MobileMenu />
+    </div>
+  </div>
+</header>
+
+<script>
+  const header = document.querySelector<HTMLElement>('[data-site-header]');
+  const sentinel = document.querySelector('[data-scroll-sentinel]');
+  if (header && sentinel && 'IntersectionObserver' in window) {
+    new IntersectionObserver(([entry]) => {
+      header.classList.toggle('is-scrolled', !entry.isIntersecting);
+    }).observe(sentinel);
+  }
+</script>
+
+<style>
+  .scroll-sentinel {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1px;
+    height: 24px;
+    pointer-events: none;
+  }
+
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: color-mix(in srgb, var(--color-bg) 94%, transparent);
+    border-bottom: 1px solid transparent;
+    transition:
+      border-color var(--dur) var(--ease),
+      background-color var(--dur) var(--ease);
+  }
+
+  @supports (backdrop-filter: blur(1px)) {
+    .site-header {
+      backdrop-filter: saturate(1.2) blur(10px);
+    }
+  }
+
+  .site-header.is-scrolled {
+    border-bottom-color: var(--color-border);
+  }
+
+  .site-header__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-m);
+    min-height: var(--header-h);
+    transition: min-height var(--dur) var(--ease);
+  }
+
+  .site-header.is-scrolled .site-header__inner {
+    min-height: 3.6rem;
+  }
+
+  .wordmark {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    min-width: 0;
+    text-decoration: none;
+    color: var(--color-text);
+  }
+
+  .wordmark__name {
+    font-family: var(--font-display);
+    font-size: clamp(1.08rem, 1rem + 0.35vw, 1.28rem);
+    font-weight: 480;
+    letter-spacing: -0.005em;
+    line-height: 1.1;
+    white-space: nowrap;
+  }
+
+  .wordmark__role {
+    font-size: 0.72rem;
+    font-weight: 520;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-text-subtle);
+    white-space: nowrap;
+    transition:
+      opacity var(--dur) var(--ease),
+      max-height var(--dur) var(--ease);
+    max-height: 1.2em;
+    overflow: hidden;
+  }
+
+  .site-header.is-scrolled .wordmark__role {
+    opacity: 0;
+    max-height: 0;
+  }
+
+  .wordmark:hover .wordmark__name {
+    color: var(--color-accent);
+  }
+
+  .site-header__actions {
+    display: flex;
+    align-items: center;
+    gap: clamp(0.4rem, 0.2rem + 0.8vw, 1.1rem);
+  }
+
+  @media (max-width: 29.99em) {
+    .wordmark__role {
+      display: none;
+    }
+  }
+</style>

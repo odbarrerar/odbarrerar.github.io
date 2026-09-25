@@ -1,0 +1,181 @@
+---
+import PageLayout from '../layouts/PageLayout.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import Icon from '../components/Icon.astro';
+import { code, profile } from '../lib/data';
+import { getPapers, paperUrl } from '../lib/research';
+
+const papers = await getPapers();
+const paperRef = new Map(papers.map((p) => [p.id, { title: p.data.title, href: paperUrl(p) }]));
+
+const repos = code.filter((c) => c.kind === 'code');
+const datasets = code.filter((c) => c.kind === 'data');
+const replication = code.filter((c) => c.kind === 'replication');
+
+// Data and code linked directly from paper pages
+const paperMaterials = papers.flatMap((p) => {
+  const out: { paper: string; href: string; label: string; url: string; kind: string }[] = [];
+  if (p.data.data_url) out.push({ paper: p.data.title, href: paperUrl(p), label: p.data.data_label ?? 'Data', url: p.data.data_url, kind: 'data' });
+  if (p.data.replication_url) out.push({ paper: p.data.title, href: paperUrl(p), label: 'Replication package', url: p.data.replication_url, kind: 'archive' });
+  if (p.data.slides_url) out.push({ paper: p.data.title, href: paperUrl(p), label: 'Slides', url: p.data.slides_url, kind: 'slides' });
+  return out;
+});
+---
+
+<PageLayout
+  title="Code & Data"
+  eyebrow="Open research"
+  heading="Code & data"
+  intro={profile.page_intros.code}
+  description={`Research code, experimental materials and data from ${profile.name}'s projects, with links to GitHub repositories and replication materials.`}
+>
+  {
+    profile.links.github && (
+      <p slot="header" class="gh">
+        <a href={profile.links.github}>
+          <Icon name="repo" /> github.com/{profile.links.github.split('/').pop()}
+        </a>
+      </p>
+    )
+  }
+
+  <div class="container code-page">
+    {
+      repos.length > 0 && (
+        <section aria-labelledby="h-repos" class="block">
+          <h2 id="h-repos" class="block__title">Repositories</h2>
+          <div class="grid">
+            {repos.map((item) => (
+              <ProjectCard item={item} paper={item.paper ? paperRef.get(item.paper) : undefined} />
+            ))}
+          </div>
+        </section>
+      )
+    }
+
+    {
+      datasets.length > 0 && (
+        <section aria-labelledby="h-data" class="block">
+          <h2 id="h-data" class="block__title">Data</h2>
+          <div class="grid">
+            {datasets.map((item) => (
+              <ProjectCard item={item} paper={item.paper ? paperRef.get(item.paper) : undefined} />
+            ))}
+          </div>
+        </section>
+      )
+    }
+
+    <section aria-labelledby="h-replication" class="block">
+      <h2 id="h-replication" class="block__title">Replication packages</h2>
+      {
+        replication.length > 0 ? (
+          <div class="grid">
+            {replication.map((item) => (
+              <ProjectCard item={item} paper={item.paper ? paperRef.get(item.paper) : undefined} />
+            ))}
+          </div>
+        ) : (
+          <p class="empty">Replication packages will be listed here as they are released.</p>
+        )
+      }
+    </section>
+
+    {
+      paperMaterials.length > 0 && (
+        <section aria-labelledby="h-materials" class="block">
+          <h2 id="h-materials" class="block__title">Materials linked to papers</h2>
+          <ul class="materials" role="list">
+            {paperMaterials.map((m) => (
+              <li>
+                <a class="materials__link" href={m.url}>
+                  <Icon name={m.kind as 'data' | 'archive' | 'slides'} /> {m.label}
+                </a>
+                <span class="materials__paper">
+                  for <a href={m.href}>{m.paper}</a>
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+  </div>
+</PageLayout>
+
+<style>
+  .gh a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    min-height: 2.5rem;
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    text-decoration: none;
+  }
+
+  .gh a:hover {
+    text-decoration: underline;
+  }
+
+  .code-page {
+    padding-top: var(--space-xl);
+    padding-bottom: var(--space-section);
+  }
+
+  .block + .block {
+    margin-top: var(--space-2xl);
+  }
+
+  .block__title {
+    margin-bottom: var(--space-m);
+    font-size: var(--step-3);
+  }
+
+  .grid {
+    display: grid;
+    gap: var(--space-m);
+  }
+
+  @media (min-width: 52em) {
+    .grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .empty {
+    padding: var(--space-m) 0;
+    border-top: 1px solid var(--color-border);
+    color: var(--color-text-muted);
+  }
+
+  .materials {
+    margin: 0;
+    padding: 0;
+  }
+
+  .materials li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.25rem 0.75rem;
+    padding-block: 0.9rem;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .materials__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45em;
+    font-weight: 560;
+  }
+
+  .materials__paper {
+    font-size: var(--step--1);
+    color: var(--color-text-muted);
+  }
+
+  .materials__paper a {
+    color: inherit;
+  }
+</style>

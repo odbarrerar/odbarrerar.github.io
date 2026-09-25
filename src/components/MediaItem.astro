@@ -1,0 +1,112 @@
+---
+/** One piece of writing or media coverage (blog post, op-ed, column…). */
+import Tag from './Tag.astro';
+import type { MediaItem } from '../lib/data';
+import { formatPartialDate, joinList, LANGUAGE_LABEL } from '../lib/format';
+
+interface Props {
+  item: MediaItem;
+  variant?: 'row' | 'card';
+  level?: 2 | 3 | 4;
+  paper?: { title: string; href: string };
+  /** Hide the outlet name (e.g. inside a section already named after it). */
+  hideOutlet?: boolean;
+}
+
+const { item, variant = 'row', level = 3, paper, hideOutlet = false } = Astro.props;
+const Heading = `h${level}` as 'h2' | 'h3' | 'h4';
+---
+
+<article class:list={['mitem', `mitem--${variant}`]} data-filter-item data-type={item.type}>
+  <p class="mitem__meta">
+    {!hideOutlet && <span class="mitem__outlet">{item.outlet}</span>}
+    {item.date && <time class="num" datetime={item.date}>{formatPartialDate(item.date, 'short')}</time>}
+    {
+      item.language !== 'en' && (
+        <Tag variant="lang" title={LANGUAGE_LABEL[item.language] ?? item.language}>
+          {item.language.toUpperCase()}
+        </Tag>
+      )
+    }
+  </p>
+  <Heading class="mitem__title" lang={item.language !== 'en' ? item.language : undefined}>
+    <a href={item.url}>{item.title}</a>
+  </Heading>
+  {item.coauthors.length > 0 && <p class="mitem__with">with {joinList(item.coauthors)}</p>}
+  {item.summary && <p class="mitem__summary">{item.summary}</p>}
+  {
+    paper && (
+      <p class="mitem__paper">
+        Related paper: <a href={paper.href}>{paper.title}</a>
+      </p>
+    )
+  }
+</article>
+
+<style>
+  .mitem {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+  }
+
+  .mitem--row {
+    padding-block: 1.35rem;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .mitem--card {
+    padding-top: 1.1rem;
+    border-top: 2px solid var(--color-text);
+  }
+
+  .mitem__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.3rem 0.8rem;
+    font-size: var(--step--2);
+    font-weight: 560;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-text-subtle);
+  }
+
+  .mitem__outlet {
+    color: var(--color-accent);
+  }
+
+  .mitem__title {
+    font-size: var(--step-1);
+    font-weight: 470;
+    line-height: 1.3;
+    max-width: 46rem;
+  }
+
+  .mitem--card .mitem__title {
+    font-size: var(--step-1);
+  }
+
+  .mitem__title a {
+    color: var(--color-text);
+    text-decoration: none;
+  }
+
+  .mitem__title a:hover {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+  }
+
+  .mitem__with,
+  .mitem__paper {
+    font-size: var(--step--1);
+    color: var(--color-text-subtle);
+  }
+
+  .mitem__summary {
+    font-size: var(--step--1);
+    color: var(--color-text-muted);
+    max-width: 42rem;
+  }
+</style>

@@ -1,0 +1,263 @@
+---
+import PageLayout from '../layouts/PageLayout.astro';
+import Portrait from '../components/Portrait.astro';
+import Button from '../components/Button.astro';
+import SocialLinks from '../components/SocialLinks.astro';
+import { cv, profile } from '../lib/data';
+import { formatRange } from '../lib/format';
+import { profilePageSchema } from '../lib/seo';
+
+const paragraphs = profile.bio
+  .trim()
+  .split(/\n\s*\n/)
+  .map((p) => p.replace(/\s+/g, ' ').trim());
+
+const site = (Astro.site?.toString() ?? '').replace(/\/$/, '');
+const affiliations = [
+  {
+    role: profile.position,
+    org: `${profile.department}, ${profile.institution}`,
+    url: profile.department_url ?? profile.institution_url,
+  },
+  ...(profile.project
+    ? [{ role: profile.project.grant ?? 'Research project', org: profile.project.name, url: profile.project.url }]
+    : []),
+  ...profile.other_affiliations.map((a) => ({ role: a.role, org: `${a.organisation}${a.city ? `, ${a.city}` : ''}`, url: a.url })),
+];
+const previous = cv.positions.filter((p) => !p.current);
+---
+
+<PageLayout
+  title="About"
+  heading={`About ${profile.name.split(' ')[0]}`}
+  description={`Biography of ${profile.name}, ${profile.position} at ${profile.institution}: research areas, education, previous positions and affiliations.`}
+  type="profile"
+  jsonLd={[profilePageSchema(site, `${site}/about/`)]}
+>
+  <div class="container about">
+    <div class="about__portrait">
+      <Portrait sizes="(min-width: 56em) 18rem, 60vw" />
+    </div>
+
+    <div class="about__main">
+      <div class="prose about__bio">
+        {paragraphs.map((p, i) => <p class={i === 0 ? 'about__lead' : undefined}>{p}</p>)}
+      </div>
+
+      <div class="about__actions">
+        <Button href="/cv/" variant="primary" iconRight="arrow-right">Curriculum vitae</Button>
+        <Button href={profile.cv.url} variant="secondary" icon="download">PDF</Button>
+      </div>
+
+      <div class="about__grid">
+        <section aria-labelledby="h-affiliations">
+          <h2 id="h-affiliations" class="about__h2">Affiliations</h2>
+          <ul class="facts" role="list">
+            {
+              affiliations.map((a) => (
+                <li>
+                  <span class="facts__role">{a.role}</span>
+                  <span class="facts__org">{a.url ? <a href={a.url}>{a.org}</a> : a.org}</span>
+                </li>
+              ))
+            }
+          </ul>
+        </section>
+
+        <section aria-labelledby="h-interests">
+          <h2 id="h-interests" class="about__h2">Research interests</h2>
+          <ul class="interests" role="list">
+            {profile.research_interests.map((r) => <li>{r}</li>)}
+          </ul>
+        </section>
+
+        <section aria-labelledby="h-education">
+          <h2 id="h-education" class="about__h2">Education</h2>
+          <ul class="facts" role="list">
+            {
+              cv.education.map((e) => (
+                <li>
+                  <span class="facts__role">
+                    {e.degree} <span class="num subtle">· {e.end}</span>
+                  </span>
+                  <span class="facts__org">{e.institution}</span>
+                </li>
+              ))
+            }
+          </ul>
+        </section>
+
+        {
+          previous.length > 0 && (
+            <section aria-labelledby="h-previous">
+              <h2 id="h-previous" class="about__h2">Previous positions</h2>
+              <ul class="facts" role="list">
+                {previous.map((p) => (
+                  <li>
+                    <span class="facts__role">
+                      {p.title}
+                      {(p.start || p.end) && <span class="num subtle"> · {formatRange(p.start, p.end)}</span>}
+                    </span>
+                    <span class="facts__org">
+                      {[p.organisation, p.unit].filter(Boolean).join(' · ')}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )
+        }
+
+        {
+          profile.languages.length > 0 && (
+            <section aria-labelledby="h-languages">
+              <h2 id="h-languages" class="about__h2">Languages</h2>
+              <p class="about__languages">{profile.languages.join(' · ')}</p>
+            </section>
+          )
+        }
+
+        <section aria-labelledby="h-contact" id="contact">
+          <h2 id="h-contact" class="about__h2">Contact</h2>
+          <p>
+            <a href={`mailto:${profile.email}`} class="about__email">{profile.email}</a>
+          </p>
+          {profile.office && <p class="subtle about__office">{profile.office}</p>}
+          <SocialLinks include={['ucd', 'scholar', 'github', 'x', 'bluesky']} class="about__social" />
+        </section>
+      </div>
+    </div>
+  </div>
+</PageLayout>
+
+<style>
+  .about {
+    display: grid;
+    gap: var(--space-xl);
+    padding-top: var(--space-xl);
+    padding-bottom: var(--space-section);
+  }
+
+  @media (min-width: 56em) {
+    .about {
+      grid-template-columns: 18rem minmax(0, 1fr);
+      gap: clamp(3rem, 6vw, 6rem);
+    }
+
+    .about__portrait {
+      position: sticky;
+      top: calc(var(--header-h) + 1.5rem);
+      align-self: start;
+    }
+  }
+
+  .about__portrait {
+    max-width: 18rem;
+  }
+
+  .about__bio {
+    max-width: 42rem;
+  }
+
+  .about__lead {
+    font-family: var(--font-display);
+    font-size: var(--step-2);
+    line-height: 1.4;
+    color: var(--color-text);
+  }
+
+  .about__bio p:not(.about__lead) {
+    color: var(--color-text-muted);
+  }
+
+  .about__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: var(--space-l);
+  }
+
+  .about__grid {
+    display: grid;
+    gap: var(--space-xl) clamp(2rem, 5vw, 4rem);
+    margin-top: var(--space-2xl);
+  }
+
+  @media (min-width: 48em) {
+    .about__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .about__h2 {
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid var(--color-text);
+    font-family: var(--font-text);
+    font-size: var(--step--2);
+    font-weight: 600;
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--color-text);
+  }
+
+  .facts {
+    margin: 0;
+    padding: 0;
+  }
+
+  .facts li {
+    display: grid;
+    gap: 0.1rem;
+    padding-block: 0.7rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .facts__role {
+    font-weight: 560;
+  }
+
+  .facts__org {
+    font-size: var(--step--1);
+    color: var(--color-text-muted);
+  }
+
+  .facts__org a {
+    color: inherit;
+  }
+
+  .interests {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0.4rem 0 0;
+  }
+
+  .interests li {
+    padding: 0.35rem 0.75rem;
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-pill);
+    font-size: var(--step--1);
+    color: var(--color-text-muted);
+  }
+
+  .about__languages {
+    padding-top: 0.4rem;
+  }
+
+  .about__email {
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    overflow-wrap: anywhere;
+  }
+
+  .about__office {
+    margin-top: 0.4rem;
+    font-size: var(--step--1);
+  }
+
+  .about :global(.about__social) {
+    margin-top: 0.5rem;
+  }
+</style>

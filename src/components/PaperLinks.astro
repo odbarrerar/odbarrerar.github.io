@@ -1,0 +1,139 @@
+---
+/**
+ * Row of typed links for a paper: journal, DOI, PDF, working paper, code,
+ * data, slides, replication package, other repositories and media.
+ * Each link has an icon and a text label, so types are never told apart
+ * by colour alone.
+ */
+import Icon, { type IconName } from './Icon.astro';
+import { doiUrl, paperUrl, type Paper } from '../lib/research';
+
+interface Props {
+  paper: Paper;
+  /** compact: the essential links for cards; full: everything. */
+  variant?: 'compact' | 'full';
+  /** Adds a link to the paper's own page. */
+  details?: boolean;
+  class?: string;
+}
+
+const { paper, variant = 'compact', details = false, class: className } = Astro.props;
+const d = paper.data;
+
+type L = { kind: string; label: string; href: string; icon: IconName; hint?: string };
+const links: L[] = [];
+
+if (details) {
+  links.push({ kind: 'details', label: 'Abstract', href: paperUrl(paper), icon: 'arrow-right' });
+}
+if (d.paper_url) {
+  const isJournal = d.status === 'published' || d.status === 'forthcoming';
+  links.push({
+    kind: isJournal ? 'journal' : 'paper',
+    label: d.paper_label ?? (isJournal ? 'Journal' : d.status === 'book-chapter' ? 'Publisher' : 'Paper'),
+    href: d.paper_url,
+    icon: isJournal ? 'journal' : 'file',
+  });
+}
+if (d.doi) {
+  links.push({ kind: 'doi', label: 'DOI', href: doiUrl(d.doi)!, icon: 'doi', hint: d.doi });
+}
+if (d.pdf_url) {
+  links.push({ kind: 'pdf', label: 'PDF', href: d.pdf_url, icon: 'download' });
+}
+const wp = d.versions.filter((v) => v.url);
+if (wp.length && (variant === 'full' || !d.pdf_url)) {
+  const shown = variant === 'full' ? wp : wp.slice(0, 1);
+  for (const v of shown) {
+    links.push({
+      kind: 'working-paper',
+      label: variant === 'full' ? v.label : 'Working paper',
+      href: v.url!,
+      icon: 'file',
+    });
+  }
+}
+if (d.code_url) links.push({ kind: 'code', label: d.code_label ?? 'Code', href: d.code_url, icon: 'code' });
+if (d.data_url) links.push({ kind: 'data', label: d.data_label ?? 'Data', href: d.data_url, icon: 'data' });
+if (d.replication_url)
+  links.push({ kind: 'replication', label: 'Replication package', href: d.replication_url, icon: 'archive' });
+if (d.slides_url) links.push({ kind: 'slides', label: 'Slides', href: d.slides_url, icon: 'slides' });
+if (variant === 'full' || links.length < 5) {
+  for (const o of d.other_links) links.push({ kind: 'other', label: o.label, href: o.url, icon: 'external' });
+}
+if (d.media.length && variant === 'compact') {
+  links.push({ kind: 'media', label: 'Coverage', href: `${paperUrl(paper)}#coverage`, icon: 'media' });
+}
+---
+
+{
+  links.length > 0 && (
+    <ul class:list={['paper-links', `paper-links--${variant}`, className]} role="list">
+      {links.map((l) => (
+        <li>
+          <a class:list={['plink', `plink--${l.kind}`]} href={l.href} title={l.hint}>
+            <Icon name={l.icon} class="plink__icon" />
+            <span>{l.label}</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+<style>
+  .paper-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1.1rem;
+    margin: 0;
+    padding: 0;
+  }
+
+  .plink {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    min-height: 2rem;
+    font-size: var(--step--1);
+    font-weight: 560;
+    color: var(--color-text);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+  }
+
+  .plink :global(.plink__icon) {
+    width: 1em;
+    height: 1em;
+    color: var(--color-accent);
+  }
+
+  .plink:hover {
+    color: var(--color-accent);
+  }
+
+  .plink:hover span {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
+  }
+
+  .plink--details {
+    color: var(--color-accent);
+  }
+
+  .paper-links--full {
+    gap: 0.6rem;
+  }
+
+  .paper-links--full .plink {
+    padding: 0.45rem 0.8rem;
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-m);
+    min-height: 2.5rem;
+  }
+
+  .paper-links--full .plink:hover {
+    border-color: var(--color-accent);
+  }
+</style>

@@ -1,0 +1,62 @@
+# ──────────────────────────────────────────────────────────────────────────
+#  TEACHING
+#
+#  One entry per course. List every time you taught it under `sessions`
+#  (institution + term). Most recent course first.
+#
+#  Required:  course, level, sessions (institution, term, year)
+#  Optional:  language, role, city, country, description, syllabus (link)
+#  level is one of: Undergraduate, Master, PhD, Executive
+# ──────────────────────────────────────────────────────────────────────────
+
+- course: Microeconomics
+  level: Undergraduate
+  language: French
+  sessions:
+    - institution: CY Cergy Paris Université
+      term: Fall 2022/23
+      year: 2022
+    - institution: Sorbonne Université
+      term: 2021/22
+      year: 2021
+    - institution: Université Paris-Sud
+      term: Fall 2018
+      year: 2018
+
+- course: Macroeconomics
+  level: Undergraduate
+  language: French
+  sessions:
+    - institution: CY Cergy Paris Université
+      term: Spring 2023
+      year: 2023
+    - institution: Université Paris-Sud
+      term: Fall 2018
+      year: 2018
+
+- course: Quantitative Methods and Topics of Economics
+  level: Master
+  sessions:
+    - institution: Institut des Hautes Études de l'Amérique latine (IHEAL)
+      term: Fall 2022
+      year: 2022
+    - institution: Institut des Hautes Études de l'Amérique latine (IHEAL)
+      term: Spring 2019
+      year: 2019
+
+- course: Statistics II
+  level: Undergraduate
+  language: English
+  sessions:
+    - institution: Sciences Po, Le Havre campus
+      term: Spring 2017
+      year: 2017
+
+- course: Master in Public Policy and Development (PPD)
+  level: Master
+  language: English
+  role: Tutor assistant
+  sessions:
+    - institution: Paris School of Economics
+      term: Spring 2016
+      year: 2016

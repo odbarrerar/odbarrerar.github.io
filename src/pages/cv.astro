@@ -1,0 +1,436 @@
+---
+import PageLayout from '../layouts/PageLayout.astro';
+import Button from '../components/Button.astro';
+import Timeline from '../components/Timeline.astro';
+import AuthorList from '../components/AuthorList.astro';
+import { cv, profile, talks, teaching } from '../lib/data';
+import { getPapers, paperUrl, venueParts, STATUS_LABEL, type Paper } from '../lib/research';
+import { formatRange } from '../lib/format';
+
+const papers = await getPapers();
+const articles = papers.filter((p) => p.data.status === 'published' || p.data.status === 'forthcoming');
+const chapters = papers.filter((p) => p.data.status === 'book-chapter');
+const workingPapers = papers.filter((p) => p.data.status === 'working-paper' || p.data.status === 'submitted');
+const inProgress = papers.filter((p) => p.data.status === 'work-in-progress');
+
+const current = cv.positions.filter((p) => p.current);
+const previous = cv.positions.filter((p) => !p.current);
+
+const talksByYear = [...new Set(talks.map((t) => t.year))]
+  .sort((a, b) => b - a)
+  .map((year) => ({ year, items: talks.filter((t) => t.year === year) }));
+
+const sections = [
+  { id: 'positions', label: 'Positions', show: cv.positions.length > 0 },
+  { id: 'education', label: 'Education', show: cv.education.length > 0 },
+  { id: 'publications', label: 'Publications', show: articles.length > 0 },
+  { id: 'chapters', label: 'Book chapters', show: chapters.length > 0 },
+  { id: 'working-papers', label: 'Working papers', show: workingPapers.length > 0 },
+  { id: 'in-progress', label: 'Work in progress', show: inProgress.length > 0 },
+  { id: 'teaching', label: 'Teaching', show: teaching.length > 0 },
+  { id: 'grants', label: 'Grants & scholarships', show: cv.grants.length > 0 },
+  { id: 'consulting', label: 'Consulting', show: cv.consulting.length > 0 },
+  { id: 'visits', label: 'Academic visits', show: cv.visits.length > 0 },
+  { id: 'talks', label: 'Conferences & seminars', show: talks.length > 0 },
+  { id: 'experience', label: 'Other experience', show: cv.experience.length > 0 },
+  { id: 'skills', label: 'Skills', show: cv.skills.length > 0 },
+  { id: 'languages', label: 'Languages', show: profile.languages.length > 0 },
+].filter((s) => s.show);
+
+function paperLine(p: Paper) {
+  const { venue, details } = venueParts(p);
+  return { venue, details };
+}
+---
+
+<PageLayout
+  title="CV"
+  heading="Curriculum Vitae"
+  eyebrow={`${profile.position} · ${profile.institution}`}
+  intro={profile.page_intros.cv}
+  description={`Curriculum vitae of ${profile.name}: positions, education, publications, working papers, teaching, grants and conference presentations.`}
+>
+  <div slot="header" class="cv-download">
+    <Button href={profile.cv.url} variant="primary" icon="download">Download full CV (PDF)</Button>
+    {profile.cv.updated && <span class="cv-download__note">Updated {profile.cv.updated}</span>}
+  </div>
+
+  <div class="container with-rail cv">
+    <nav class="cv-toc" aria-label="CV sections">
+      <p class="label">Sections</p>
+      <ol role="list">
+        {sections.map((s) => <li><a href={`#${s.id}`}>{s.label}</a></li>)}
+      </ol>
+    </nav>
+
+    <div class="cv-body">
+      {
+        cv.positions.length > 0 && (
+          <section id="positions" aria-labelledby="h-positions">
+            <h2 id="h-positions" class="cv-h2">Positions</h2>
+            {current.length > 0 && <h3 class="cv-h3">Current</h3>}
+            <Timeline
+              items={current.map((p) => ({
+                when: p.start ? formatRange(p.start, p.end ?? 'present') : 'Current',
+                title: p.title,
+                subtitle: p.organisation,
+                meta: [p.unit, p.location].filter(Boolean).join(' · '),
+                detail: p.note,
+                current: true,
+              }))}
+            />
+            {previous.length > 0 && <h3 class="cv-h3">Previous</h3>}
+            <Timeline
+              items={previous.map((p) => ({
+                when: formatRange(p.start, p.end),
+                title: p.title,
+                subtitle: p.organisation,
+                meta: [p.unit, p.location].filter(Boolean).join(' · '),
+                detail: p.note,
+              }))}
+            />
+          </section>
+        )
+      }
+
+      {
+        cv.education.length > 0 && (
+          <section id="education" aria-labelledby="h-education">
+            <h2 id="h-education" class="cv-h2">Education</h2>
+            <Timeline
+              items={cv.education.map((e) => ({
+                when: formatRange(e.start, e.end),
+                title: e.degree,
+                subtitle: [e.institution, e.location].filter(Boolean).join(', '),
+                meta: e.thesis ? `Thesis: “${e.thesis}”` : undefined,
+                detail: [e.advisors && `Advisor: ${e.advisors}`, e.committee && `Committee: ${e.committee}`]
+                  .filter(Boolean)
+                  .join('. '),
+              }))}
+            />
+          </section>
+        )
+      }
+
+      {
+        [
+          { id: 'publications', title: 'Publications', list: articles },
+          { id: 'chapters', title: 'Book chapters', list: chapters },
+          { id: 'working-papers', title: 'Working papers', list: workingPapers },
+          { id: 'in-progress', title: 'Work in progress', list: inProgress },
+        ]
+          .filter((g) => g.list.length > 0)
+          .map((g) => (
+            <section id={g.id} aria-labelledby={`h-${g.id}`}>
+              <h2 id={`h-${g.id}`} class="cv-h2">{g.title}</h2>
+              <ol class="cv-papers" role="list">
+                {g.list.map((p) => {
+                  const { venue, details } = paperLine(p);
+                  return (
+                    <li class="cv-paper">
+                      <p class="cv-paper__year tnum">{p.data.year ?? ''}</p>
+                      <div>
+                        <p class="cv-paper__title">
+                          <a href={paperUrl(p)}>{p.data.title}</a>
+                        </p>
+                        <AuthorList authors={p.data.authors} />
+                        <p class="cv-paper__venue">
+                          {venue ? <cite>{venue}</cite> : STATUS_LABEL[p.data.status]}
+                          {venue && details && <span class="num">, {details.replace(/ · \d{4}$/, '')}</span>}
+                          {p.data.status === 'submitted' && ' · Submitted'}
+                        </p>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ol>
+            </section>
+          ))
+      }
+
+      {
+        teaching.length > 0 && (
+          <section id="teaching" aria-labelledby="h-teaching">
+            <h2 id="h-teaching" class="cv-h2">Teaching</h2>
+            <Timeline
+              compact
+              items={teaching.map((c) => ({
+                when: formatRange(
+                  String(Math.min(...c.sessions.map((s) => s.year))),
+                  String(Math.max(...c.sessions.map((s) => s.year))),
+                ),
+                title: c.course,
+                subtitle: c.sessions.map((s) => `${s.institution} (${s.term})`).join('; '),
+                meta: [c.level, c.language && `in ${c.language}`, c.role].filter(Boolean).join(' · '),
+              }))}
+            />
+            <p class="cv-more"><a href="/teaching/">Teaching details</a></p>
+          </section>
+        )
+      }
+
+      {
+        cv.grants.length > 0 && (
+          <section id="grants" aria-labelledby="h-grants">
+            <h2 id="h-grants" class="cv-h2">Research grants and scholarships</h2>
+            <Timeline compact items={cv.grants.map((g) => ({ when: g.years, title: g.title, subtitle: g.funder, detail: g.note }))} />
+          </section>
+        )
+      }
+
+      {
+        cv.consulting.length > 0 && (
+          <section id="consulting" aria-labelledby="h-consulting">
+            <h2 id="h-consulting" class="cv-h2">Consulting</h2>
+            <Timeline compact items={cv.consulting.map((c) => ({ when: c.years, title: c.organisation, subtitle: c.role, detail: c.description }))} />
+          </section>
+        )
+      }
+
+      {
+        cv.visits.length > 0 && (
+          <section id="visits" aria-labelledby="h-visits">
+            <h2 id="h-visits" class="cv-h2">Academic visits</h2>
+            <Timeline compact items={cv.visits.map((v) => ({ when: v.years, title: v.institution, subtitle: v.location, detail: v.note }))} />
+          </section>
+        )
+      }
+
+      {
+        talks.length > 0 && (
+          <section id="talks" aria-labelledby="h-talks">
+            <h2 id="h-talks" class="cv-h2">Conferences and seminars</h2>
+            <dl class="cv-talks">
+              {talksByYear.map((y) => (
+                <div class="cv-talks__row">
+                  <dt class="tnum">{y.year}</dt>
+                  <dd>
+                    {y.items.map((t, i) => (
+                      <span>
+                        {t.event}
+                        {t.host && <span class="subtle"> ({t.host === 'University College Dublin' ? 'UCD' : t.host}{t.city && t.city !== 'Online' ? `, ${t.city}` : ''})</span>}
+                        {i < y.items.length - 1 ? '; ' : ''}
+                      </span>
+                    ))}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+            <p class="cv-more"><a href="/talks/">All talks with details and links</a></p>
+          </section>
+        )
+      }
+
+      {
+        cv.experience.length > 0 && (
+          <section id="experience" aria-labelledby="h-experience">
+            <h2 id="h-experience" class="cv-h2">Other professional experience</h2>
+            <Timeline compact items={cv.experience.map((e) => ({ when: e.years, title: e.role, subtitle: e.organisation, detail: e.description }))} />
+          </section>
+        )
+      }
+
+      {
+        cv.skills.length > 0 && (
+          <section id="skills" aria-labelledby="h-skills">
+            <h2 id="h-skills" class="cv-h2">Skills</h2>
+            <dl class="cv-skills">
+              {cv.skills.map((s) => (
+                <div>
+                  <dt>{s.label}</dt>
+                  <dd>{s.items}</dd>
+                </div>
+              ))}
+            </dl>
+          </section>
+        )
+      }
+
+      {
+        profile.languages.length > 0 && (
+          <section id="languages" aria-labelledby="h-languages">
+            <h2 id="h-languages" class="cv-h2">Languages</h2>
+            <p class="cv-languages">{profile.languages.join(' · ')}</p>
+          </section>
+        )
+      }
+    </div>
+  </div>
+</PageLayout>
+
+<style>
+  .cv-download {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem 1.25rem;
+  }
+
+  .cv-download__note {
+    font-size: var(--step--1);
+    color: var(--color-text-subtle);
+  }
+
+  .cv {
+    padding-top: var(--space-xl);
+    padding-bottom: var(--space-section);
+  }
+
+  .cv-toc {
+    display: none;
+  }
+
+  @media (min-width: 64em) {
+    .cv-toc {
+      display: block;
+      position: sticky;
+      top: calc(var(--header-h) + 1.5rem);
+      align-self: start;
+      max-height: calc(100vh - var(--header-h) - 3rem);
+      overflow-y: auto;
+    }
+  }
+
+  .cv-toc ol {
+    margin: 0.75rem 0 0;
+    padding: 0;
+    border-left: 1px solid var(--color-border);
+  }
+
+  .cv-toc a {
+    display: block;
+    padding: 0.32rem 0 0.32rem 1rem;
+    margin-left: -1px;
+    border-left: 1px solid transparent;
+    font-size: var(--step--1);
+    color: var(--color-text-muted);
+    text-decoration: none;
+  }
+
+  .cv-toc a:hover {
+    color: var(--color-accent);
+    border-left-color: var(--color-accent);
+  }
+
+  .cv-body {
+    min-width: 0;
+  }
+
+  .cv-body > section + section {
+    margin-top: var(--space-2xl);
+  }
+
+  .cv-h2 {
+    margin-bottom: var(--space-s);
+    font-size: var(--step-3);
+  }
+
+  .cv-h3 {
+    margin: var(--space-m) 0 0.25rem;
+    font-family: var(--font-text);
+    font-size: var(--step--2);
+    font-weight: 600;
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--color-text-subtle);
+  }
+
+  .cv-papers {
+    margin: 0;
+    padding: 0;
+  }
+
+  .cv-paper {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.15rem var(--space-l);
+    padding-block: 1.05rem;
+    border-top: 1px solid var(--color-border);
+  }
+
+  @media (min-width: 40em) {
+    .cv-paper {
+      grid-template-columns: 8.5rem minmax(0, 1fr);
+    }
+  }
+
+  .cv-paper__year {
+    font-size: var(--step--1);
+    color: var(--color-text-subtle);
+  }
+
+  .cv-paper__title {
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    line-height: 1.3;
+  }
+
+  .cv-paper__title a {
+    color: var(--color-text);
+    text-decoration: none;
+  }
+
+  .cv-paper__title a:hover {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+  }
+
+  .cv-paper__venue {
+    font-size: var(--step--1);
+    color: var(--color-text-muted);
+  }
+
+  .cv-talks {
+    margin: 0;
+  }
+
+  .cv-talks__row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.15rem var(--space-l);
+    padding-block: 0.9rem;
+    border-top: 1px solid var(--color-border);
+  }
+
+  @media (min-width: 40em) {
+    .cv-talks__row {
+      grid-template-columns: 8.5rem minmax(0, 1fr);
+    }
+  }
+
+  .cv-talks dt {
+    font-size: var(--step--1);
+    color: var(--color-text-subtle);
+  }
+
+  .cv-talks dd {
+    margin: 0;
+    font-size: var(--step--1);
+    line-height: 1.6;
+  }
+
+  .cv-skills div {
+    padding-block: 0.8rem;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .cv-skills dt {
+    font-weight: 560;
+  }
+
+  .cv-skills dd {
+    margin: 0;
+    color: var(--color-text-muted);
+  }
+
+  .cv-languages {
+    padding-top: 1rem;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .cv-more {
+    margin-top: 0.75rem;
+    font-size: var(--step--1);
+  }
+</style>
