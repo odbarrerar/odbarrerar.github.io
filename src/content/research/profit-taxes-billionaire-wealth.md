@@ -2,6 +2,8 @@
 title: "Profit Taxes and the Accumulation of Billionaire Wealth"
 authors:
   - Oscar Barrera Rodríguez
+  - Aidan Regan
+  - Alba Valquez García
 status: work-in-progress
 topics: [taxation]
 keywords: [Corporate profit taxation, Billionaire wealth, Democracy Challenged]
