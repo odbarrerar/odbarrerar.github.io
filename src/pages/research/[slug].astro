@@ -13,6 +13,7 @@ import { getCollection } from 'astro:content';
 import { code, media as mediaList, talks } from '../../lib/data';
 import {
   STATUS_LABEL,
+  absoluteUrl,
   doiUrl,
   getPapers,
   groupOf,
@@ -73,6 +74,8 @@ const description = truncate(plainText(d.summary), 158);
 // Google Scholar (Highwire Press) meta tags
 const pubDate = (d.date ?? (d.year ? String(d.year) : '')).replace(/-/g, '/');
 const firstPage = d.pages && /^\d+$/.test(d.pages) ? d.pages : undefined;
+// Scholar only uses PDFs hosted on the same site as the paper page
+const pdfOnSite = d.pdf_url && (d.pdf_url.startsWith('/') || d.pdf_url.startsWith(site)) ? absoluteUrl(d.pdf_url, site) : undefined;
 ---
 
 <BaseLayout title={d.title} description={description} type="article" breadcrumbs={crumbs} jsonLd={[scholarlyArticleSchema(paper, site, url)]}>
@@ -89,6 +92,7 @@ const firstPage = d.pages && /^\d+$/.test(d.pages) ? d.pages : undefined;
     {d.doi && <meta name="citation_doi" content={d.doi} />}
     {d.keywords.length > 0 && <meta name="citation_keywords" content={d.keywords.join('; ')} />}
     <meta name="citation_abstract_html_url" content={url} />
+    {pdfOnSite && <meta name="citation_pdf_url" content={pdfOnSite} />}
   </Fragment>
 
   <article class="paper">
@@ -96,12 +100,22 @@ const firstPage = d.pages && /^\d+$/.test(d.pages) ? d.pages : undefined;
       <div class="container">
         <Breadcrumbs items={crumbs} />
         <p class="paper__status">
+          {d.job_market_paper && <Tag variant="accent" marker="jmp">Job market paper</Tag>}
           <Tag variant="status" marker={group}>{STATUS_LABEL[d.status]}</Tag>
-          {d.year && <span class="num">{d.year}</span>}
+          {
+            d.version_date ? (
+              <span>
+                Latest version: <time datetime={d.version_date}>{formatPartialDate(d.version_date)}</time>
+              </span>
+            ) : (
+              d.year && <span class="num">{d.year}</span>
+            )
+          }
           {d.open_access && <span class="paper__oa"><Icon name="unlock" /> Open access</span>}
         </p>
         <h1 class="paper__title">{d.title}</h1>
         <AuthorList authors={d.authors} mode="all" class="paper__authors" />
+        {d.previous_title && <p class="paper__previous">Previously circulated as “{d.previous_title}”.</p>}
 
         {
           (d.venue || d.doi) && (
@@ -359,6 +373,13 @@ const firstPage = d.pages && /^\d+$/.test(d.pages) ? d.pages : undefined;
   .paper__header :global(.paper__authors) {
     margin-top: 1.25rem;
     font-size: var(--step-0);
+  }
+
+  .paper__previous {
+    margin-top: 0.5rem;
+    max-width: 52rem;
+    font-size: var(--step--1);
+    color: var(--color-text-muted);
   }
 
   .paper__venue {

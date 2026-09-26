@@ -4,10 +4,12 @@ import ResearchCard from '../../components/ResearchCard.astro';
 import FilterBar from '../../components/FilterBar.astro';
 import Icon from '../../components/Icon.astro';
 import { profile, themes } from '../../lib/data';
-import { byGroup, collaborators, getPapers } from '../../lib/research';
+import { byGroup, collaborators, getPapers, jobMarketPaper } from '../../lib/research';
 
 const papers = await getPapers();
-const groups = byGroup(papers).filter((g) => g.papers.length > 0);
+const jmp = jobMarketPaper(papers);
+// The job market paper gets its own section at the top instead of its status group
+const groups = byGroup(papers.filter((p) => p.id !== jmp?.id)).filter((g) => g.papers.length > 0);
 const people = collaborators(papers);
 const themeOptions = themes.map((t) => ({
   value: t.id,
@@ -23,6 +25,7 @@ const themeOptions = themes.map((t) => ({
 >
   <nav slot="header" class="jump" aria-label="On this page">
     <ul role="list">
+      {jmp && <li><a href="#job-market-paper">Job market paper</a></li>}
       {
         groups.map((g) => (
           <li>
@@ -50,6 +53,24 @@ const themeOptions = themes.map((t) => ({
           <p class="theme-note__text">{t.description}</p>
         </div>
       ))
+    }
+
+    {
+      jmp && (
+        <section
+          class="research__group research__group--jmp"
+          id="job-market-paper"
+          data-filter-section
+          aria-labelledby="h-job-market-paper"
+        >
+          <h2 id="h-job-market-paper" class="research__heading">
+            Job market paper
+          </h2>
+          <div>
+            <ResearchCard paper={jmp} level={3} variant="feature" />
+          </div>
+        </section>
+      )
     }
 
     {

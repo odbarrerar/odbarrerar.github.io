@@ -112,6 +112,7 @@ export function scholarlyArticleSchema(p: Paper, site: string, url: string): Jso
     '@id': `${url}#article`,
     headline: d.title.length > 110 ? `${d.title.slice(0, 107)}…` : d.title,
     name: d.title,
+    ...(d.previous_title ? { alternativeHeadline: d.previous_title } : {}),
     url,
     author: d.authors.map((a) => (isSelf(a) ? { '@id': personId(site), '@type': 'Person', name: a } : { '@type': 'Person', name: a })),
     ...(d.date || d.year ? { datePublished: d.date ?? String(d.year) } : {}),

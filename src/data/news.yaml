@@ -8,6 +8,11 @@
 # ──────────────────────────────────────────────────────────────────────────
 
 - date: 2026-09
+  kind: paper
+  text: "New version of my job market paper, \"Biased Information, Biased Preferences\", with Lora Pavlova and Li Yang."
+  url: /research/biased-information-biased-preferences/
+
+- date: 2026-09
   kind: talk
   text: Presented at the 122nd APSA Annual Meeting in Boston.
   url: /talks/
@@ -30,7 +35,7 @@
 - date: 2025-07
   kind: paper
   text: "New working paper: \"Confirmation Bias and Asymmetric Political Polarization: Evidence from a Media Experiment in Germany\"."
-  url: /research/confirmation-bias-political-polarization/
+  url: /research/biased-information-biased-preferences/
 
 - date: 2025-06
   kind: publication

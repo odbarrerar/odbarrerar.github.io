@@ -7,7 +7,7 @@
  */
 import { chromium } from 'playwright';
 import AxeBuilder from '@axe-core/playwright';
-import { readdirSync, statSync } from 'node:fs';
+import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative, extname } from 'node:path';
 import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
@@ -20,7 +20,9 @@ function pages(dir) {
   return readdirSync(dir).flatMap((name) => {
     const full = join(dir, name);
     if (statSync(full).isDirectory()) return pages(full);
-    return name.endsWith('.html') ? ['/' + relative(DIST, full).replace(/index\.html$/, '')] : [];
+    // Skip redirect stubs (old addresses that forward to a new page)
+    if (!name.endsWith('.html') || readFileSync(full, 'utf8').includes('http-equiv="refresh"')) return [];
+    return ['/' + relative(DIST, full).replace(/index\.html$/, '')];
   });
 }
 

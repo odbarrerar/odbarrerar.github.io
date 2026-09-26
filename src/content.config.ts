@@ -22,9 +22,17 @@ const partialDate = z
 
 const url = z.url();
 
+/** A full link (https://…) or a file on this site ("/files/paper.pdf"). */
+const href = z
+  .string()
+  .trim()
+  .refine((v) => (v.startsWith('/') ? /^\/\S*$/.test(v) : /^https?:\/\//.test(v) && URL.canParse(v)), {
+    message: 'Use a full link (https://…) or a path on this site starting with "/", e.g. /files/paper.pdf',
+  });
+
 const link = z.object({
   label: z.string(),
-  url,
+  url: href,
 });
 
 const mediaItem = z.object({
@@ -74,21 +82,31 @@ const research = defineCollection({
       jel: z.array(z.string()).default([]),
 
       /** Main link to the paper (journal page, paper website…). */
-      paper_url: url.optional(),
+      paper_url: href.optional(),
       paper_label: z.string().optional(),
-      /** Direct link to a PDF. */
-      pdf_url: url.optional(),
-      code_url: url.optional(),
+      /** Direct link to a PDF: a full link, or a file in public/files/ ("/files/paper.pdf"). */
+      pdf_url: href.optional(),
+      /** Date of the current draft of a working paper, shown as "Latest version: September 2026". */
+      version_date: partialDate.optional(),
+      /** Earlier title, shown as "Previously circulated as …". */
+      previous_title: z.string().optional(),
+      code_url: href.optional(),
       code_label: z.string().optional(),
-      data_url: url.optional(),
+      data_url: href.optional(),
       data_label: z.string().optional(),
-      slides_url: url.optional(),
-      replication_url: url.optional(),
+      slides_url: href.optional(),
+      replication_url: href.optional(),
       other_links: z.array(link).default([]),
       /** Earlier versions: working papers, discussion papers… */
-      versions: z.array(z.object({ label: z.string(), url: url.optional() })).default([]),
+      versions: z.array(z.object({ label: z.string(), url: href.optional() })).default([]),
       media: z.array(mediaItem).default([]),
 
+      /**
+       * Marks the job market paper: it is labelled everywhere, shown in the
+       * homepage hero and listed first on the Research and CV pages.
+       * Only one paper can have it.
+       */
+      job_market_paper: z.boolean().default(false),
       featured: z.boolean().default(false),
       /** Order among featured papers (1 = first). */
       order: z.number().optional(),

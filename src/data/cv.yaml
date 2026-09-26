@@ -102,3 +102,15 @@ experience:
   - role: Research assistant
     organisation: Ministry of Culture of Colombia
     years: "2011"
+
+# References, as listed in your PDF CV. Shown at the end of the web CV.
+# Email addresses are left out of the web page on purpose (they are in the
+# PDF). Add `email:` to an entry if you want it shown, or delete this list
+# to hide the section.
+references:
+  - name: Aidan Regan
+    details: Professor of Political Economy, School of Politics and International Relations, University College Dublin
+  - name: Thomas Piketty
+    details: Chaired Professor, Paris School of Economics, EHESS
+  - name: Oliver Vanden Eynde
+    details: Chaired Professor, Paris School of Economics; Senior Researcher, CNRS

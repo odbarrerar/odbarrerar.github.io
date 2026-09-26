@@ -79,7 +79,7 @@ office: G313, Newman Building, University College Dublin, Belfield, Dublin 4, Ir
 # Put the PDF in  public/files/  and write its path here (starting with /files/),
 # or paste a full link (e.g. Dropbox). The "Download CV" buttons use this.
 cv:
-  url: https://www.dropbox.com/scl/fi/nbshr74c64ngnafzd9zz5/CV_Barrera_2026.pdf?rlkey=7zwdsc5adq4o55n9sk4yfajds&st=k31annso&dl=0
+  url: /files/CV_Barrera_2026.pdf
   updated: "2026"
 
 # ── Links ──────────────────────────────────────────────────────────────────
@@ -95,6 +95,20 @@ links:
 
 # Handle used for X/Twitter link previews (without @). Leave empty to omit.
 x_handle: odbarrerar
+
+# ── Job market ─────────────────────────────────────────────────────────────
+# The job market paper is marked with `job_market_paper: true` in its file in
+# src/content/research/. It then appears in the homepage hero and first on
+# the Research and CV pages.
+# Optional sentence shown above it in the hero, for example
+#   job_market_note: I am on the 2026–2027 academic job market.
+# Leave empty ("") to hide it.
+job_market_note: ""
+
+# ── Google Search Console ──────────────────────────────────────────────────
+# To verify the site with the "HTML tag" method, paste only the code inside
+# content="…" of the tag Google gives you. Leave empty otherwise.
+google_site_verification: ""
 
 # ── Page introductions ─────────────────────────────────────────────────────
 # The short paragraph under the title of each page.

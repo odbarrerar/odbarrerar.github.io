@@ -130,6 +130,18 @@ const ProfileSchema = z.object({
     linkedin: optionalUrl,
   }),
   x_handle: z.string().optional(),
+  /** Optional sentence shown with the job market paper in the homepage hero. */
+  job_market_note: z
+    .string()
+    .trim()
+    .optional()
+    .transform((v) => v || undefined),
+  /** Content of the Google Search Console "HTML tag" verification. */
+  google_site_verification: z
+    .string()
+    .trim()
+    .optional()
+    .transform((v) => v || undefined),
   page_intros: z.record(z.string(), z.string()).default({}),
 });
 
@@ -320,6 +332,16 @@ const CvSchema = z.object({
     )
     .default([]),
   skills: z.array(z.object({ label: z.string(), items: z.string() })).default([]),
+  references: z
+    .array(
+      z.object({
+        name: z.string(),
+        details: z.string().optional(),
+        email: z.email().optional(),
+        url: optionalUrl,
+      }),
+    )
+    .default([]),
 });
 export type Cv = z.output<typeof CvSchema>;
 export const cv: Cv = load('cv.yaml', cvRaw, CvSchema);

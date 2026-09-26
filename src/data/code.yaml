@@ -16,7 +16,7 @@
   kind: code
   repo: odbarrerar/germannews_zew
   url: https://github.com/odbarrerar/germannews_zew
-  paper: confirmation-bias-political-polarization
+  paper: biased-information-biased-preferences
   context: Media experiment in Germany with Lora Pavlova and Li Yang (ZEW Mannheim).
   description: >-
     Static front end of a mock news portal ("The Latest German News!") with category
@@ -28,7 +28,7 @@
   kind: code
   repo: odbarrerar/germannews
   url: https://github.com/odbarrerar/germannews
-  paper: confirmation-bias-political-polarization
+  paper: biased-information-biased-preferences
   context: Media experiment in Germany with Lora Pavlova and Li Yang (ZEW Mannheim).
   description: >-
     Companion repository for the German news experiment.

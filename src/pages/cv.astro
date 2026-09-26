@@ -4,10 +4,13 @@ import Button from '../components/Button.astro';
 import Timeline from '../components/Timeline.astro';
 import AuthorList from '../components/AuthorList.astro';
 import { cv, profile, talks, teaching } from '../lib/data';
-import { getPapers, paperUrl, venueParts, STATUS_LABEL, type Paper } from '../lib/research';
-import { formatRange } from '../lib/format';
+import { getPapers, jobMarketPaper, paperUrl, venueParts, STATUS_LABEL, type Paper } from '../lib/research';
+import { formatPartialDate, formatRange } from '../lib/format';
 
-const papers = await getPapers();
+const allPapers = await getPapers();
+const jmp = jobMarketPaper(allPapers);
+// The job market paper is listed in its own section, not again below
+const papers = allPapers.filter((p) => p.id !== jmp?.id);
 const articles = papers.filter((p) => p.data.status === 'published' || p.data.status === 'forthcoming');
 const chapters = papers.filter((p) => p.data.status === 'book-chapter');
 const workingPapers = papers.filter((p) => p.data.status === 'working-paper' || p.data.status === 'submitted');
@@ -23,6 +26,7 @@ const talksByYear = [...new Set(talks.map((t) => t.year))]
 const sections = [
   { id: 'positions', label: 'Positions', show: cv.positions.length > 0 },
   { id: 'education', label: 'Education', show: cv.education.length > 0 },
+  { id: 'job-market-paper', label: 'Job market paper', show: !!jmp },
   { id: 'publications', label: 'Publications', show: articles.length > 0 },
   { id: 'chapters', label: 'Book chapters', show: chapters.length > 0 },
   { id: 'working-papers', label: 'Working papers', show: workingPapers.length > 0 },
@@ -35,6 +39,7 @@ const sections = [
   { id: 'experience', label: 'Other experience', show: cv.experience.length > 0 },
   { id: 'skills', label: 'Skills', show: cv.skills.length > 0 },
   { id: 'languages', label: 'Languages', show: profile.languages.length > 0 },
+  { id: 'references', label: 'References', show: cv.references.length > 0 },
 ].filter((s) => s.show);
 
 function paperLine(p: Paper) {
@@ -108,6 +113,34 @@ function paperLine(p: Paper) {
                   .join('. '),
               }))}
             />
+          </section>
+        )
+      }
+
+      {
+        jmp && (
+          <section id="job-market-paper" aria-labelledby="h-job-market-paper">
+            <h2 id="h-job-market-paper" class="cv-h2">Job market paper</h2>
+            <div class="cv-paper cv-paper--jmp">
+              <p class="cv-paper__year tnum">
+                {jmp.data.version_date ? formatPartialDate(jmp.data.version_date, 'short') : (jmp.data.year ?? '')}
+              </p>
+              <div>
+                <p class="cv-paper__title">
+                  <a href={paperUrl(jmp)}>{jmp.data.title}</a>
+                </p>
+                <AuthorList authors={jmp.data.authors} />
+                {jmp.data.previous_title && (
+                  <p class="cv-paper__venue">Previously circulated as “{jmp.data.previous_title}”</p>
+                )}
+                <p class="cv-paper__summary">{jmp.data.summary}</p>
+                {jmp.data.pdf_url && (
+                  <p class="cv-paper__venue">
+                    <a href={jmp.data.pdf_url}>Latest version (PDF)</a>
+                  </p>
+                )}
+              </div>
+            </div>
           </section>
         )
       }
@@ -254,6 +287,27 @@ function paperLine(p: Paper) {
           </section>
         )
       }
+
+      {
+        cv.references.length > 0 && (
+          <section id="references" aria-labelledby="h-references">
+            <h2 id="h-references" class="cv-h2">References</h2>
+            <ul class="cv-refs" role="list">
+              {cv.references.map((r) => (
+                <li>
+                  <p class="cv-refs__name">{r.url ? <a href={r.url}>{r.name}</a> : r.name}</p>
+                  {r.details && <p class="cv-refs__details">{r.details}</p>}
+                  {r.email && (
+                    <p class="cv-refs__details">
+                      <a href={`mailto:${r.email}`}>{r.email}</a>
+                    </p>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </section>
+        )
+      }
     </div>
   </div>
 </PageLayout>
@@ -377,6 +431,47 @@ function paperLine(p: Paper) {
   }
 
   .cv-paper__venue {
+    font-size: var(--step--1);
+    color: var(--color-text-muted);
+  }
+
+  .cv-paper__summary {
+    margin-top: 0.35rem;
+    max-width: 44rem;
+    font-size: var(--step--1);
+    color: var(--color-text-muted);
+  }
+
+  .cv-paper--jmp {
+    border-top: 2px solid var(--color-accent);
+  }
+
+  .cv-refs {
+    display: grid;
+    gap: 0 var(--space-l);
+    margin: 0;
+    padding: 0;
+  }
+
+  @media (min-width: 48em) {
+    .cv-refs {
+      grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+    }
+  }
+
+  .cv-refs li {
+    padding-block: 0.9rem;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .cv-refs__name {
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    line-height: 1.3;
+  }
+
+  .cv-refs__details {
+    margin-top: 0.2rem;
     font-size: var(--step--1);
     color: var(--color-text-muted);
   }

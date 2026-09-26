@@ -7,6 +7,7 @@
  *   node scripts/og-image.mjs
  */
 import { chromium } from 'playwright';
+import sharp from 'sharp';
 import { parse } from 'yaml';
 import { existsSync, readFileSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -59,6 +60,8 @@ writeFileSync(tmp, html);
 await page.goto(`file://${tmp}`, { waitUntil: 'load' });
 await page.evaluate(() => document.fonts.ready);
 rmSync(tmp);
-await page.screenshot({ path: `${root}public/og/default.png` });
+// Palette PNG: about a third of the size, visually identical at this scale
+const shot = await page.screenshot();
+await sharp(shot).png({ palette: true, quality: 90, effort: 10, compressionLevel: 9 }).toFile(`${root}public/og/default.png`);
 await browser.close();
 console.log(`Wrote public/og/default.png${portrait ? ' (with portrait)' : ''}`);

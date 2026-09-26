@@ -3,7 +3,17 @@
 import Button from './Button.astro';
 import Icon from './Icon.astro';
 import Portrait from './Portrait.astro';
+import JobMarketPaper from './JobMarketPaper.astro';
 import { profile } from '../lib/data';
+import type { Paper } from '../lib/research';
+
+interface Props {
+  /** The job market paper, if one is marked in src/content/research. */
+  jmp?: Paper;
+}
+
+const { jmp } = Astro.props;
+const note = profile.job_market_note;
 ---
 
 <section class="hero" aria-labelledby="hero-title">
@@ -39,6 +49,14 @@ import { profile } from '../lib/data';
       </p>
 
       <p class="hero__statement">{profile.statement}</p>
+
+      {
+        (jmp || note) && (
+          <div class="hero__jmp">
+            <JobMarketPaper paper={jmp} note={note} />
+          </div>
+        )
+      }
 
       <div class="hero__actions">
         <Button href="/research/" variant="primary" iconRight="arrow-right">View research</Button>
@@ -107,6 +125,7 @@ import { profile } from '../lib/data';
   .hero__affiliation,
   .hero__projects,
   .hero__statement,
+  .hero__jmp,
   .hero__actions,
   .hero__links {
     grid-column: 1 / -1;
@@ -206,6 +225,10 @@ import { profile } from '../lib/data';
     font-size: clamp(1.04rem, 0.98rem + 0.3vw, 1.19rem);
     line-height: 1.6;
     color: var(--color-text-muted);
+  }
+
+  .hero__jmp {
+    margin-top: 1.75rem;
   }
 
   .hero__actions {

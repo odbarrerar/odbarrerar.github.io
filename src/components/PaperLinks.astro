@@ -41,18 +41,24 @@ if (d.doi) {
 if (d.pdf_url) {
   links.push({ kind: 'pdf', label: 'PDF', href: d.pdf_url, icon: 'download' });
 }
+// Earlier versions: for published papers these are the free working-paper
+// versions (listed right after the journal); for working papers they are
+// older drafts, so they go last.
+const isPublished = ['published', 'forthcoming', 'book-chapter'].includes(d.status);
+const versionLinks: L[] = [];
 const wp = d.versions.filter((v) => v.url);
 if (wp.length && (variant === 'full' || !d.pdf_url)) {
   const shown = variant === 'full' ? wp : wp.slice(0, 1);
   for (const v of shown) {
-    links.push({
+    versionLinks.push({
       kind: 'working-paper',
-      label: variant === 'full' ? v.label : 'Working paper',
+      label: variant === 'full' ? v.label : isPublished ? 'Working paper' : 'Earlier version',
       href: v.url!,
       icon: 'file',
     });
   }
 }
+if (isPublished) links.push(...versionLinks);
 if (d.code_url) links.push({ kind: 'code', label: d.code_label ?? 'Code', href: d.code_url, icon: 'code' });
 if (d.data_url) links.push({ kind: 'data', label: d.data_label ?? 'Data', href: d.data_url, icon: 'data' });
 if (d.replication_url)
@@ -61,6 +67,7 @@ if (d.slides_url) links.push({ kind: 'slides', label: 'Slides', href: d.slides_u
 if (variant === 'full' || links.length < 5) {
   for (const o of d.other_links) links.push({ kind: 'other', label: o.label, href: o.url, icon: 'external' });
 }
+if (!isPublished) links.push(...versionLinks);
 if (d.media.length && variant === 'compact') {
   links.push({ kind: 'media', label: 'Coverage', href: `${paperUrl(paper)}#coverage`, icon: 'media' });
 }

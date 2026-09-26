@@ -36,6 +36,8 @@ function sortKey(p: Paper): string {
 
 export function sortPapers(list: Paper[]): Paper[] {
   return [...list].sort((a, b) => {
+    // The job market paper always comes first
+    if (a.data.job_market_paper !== b.data.job_market_paper) return a.data.job_market_paper ? -1 : 1;
     const byDate = sortKey(b).localeCompare(sortKey(a));
     if (byDate !== 0) return byDate;
     return (a.data.order ?? 99) - (b.data.order ?? 99) || a.data.title.localeCompare(b.data.title);
@@ -53,7 +55,25 @@ export async function getPapers(): Promise<Paper[]> {
       }
     }
   }
+  const jmp = all.filter((p) => p.data.job_market_paper);
+  if (jmp.length > 1) {
+    throw new Error(
+      `Only one paper can have "job_market_paper: true". Found it in: ${jmp
+        .map((p) => `src/content/research/${p.id}.md`)
+        .join(', ')}`,
+    );
+  }
   return sortPapers(all);
+}
+
+/** The paper marked `job_market_paper: true`, if any. */
+export function jobMarketPaper(papers: Paper[]): Paper | undefined {
+  return papers.find((p) => p.data.job_market_paper);
+}
+
+/** Turns a site path such as /files/paper.pdf into a full URL. */
+export function absoluteUrl(href: string, site: string): string {
+  return new URL(href, `${site.replace(/\/$/, '')}/`).toString();
 }
 
 export function byGroup(papers: Paper[]) {
@@ -185,7 +205,8 @@ export function formatCitation(p: Paper, siteUrl: string): string {
 
   const year = d.year ?? 'n.d.';
   const title = d.title.replace(/\.$/, '');
-  const link = doiUrl(d.doi) ?? d.paper_url ?? d.pdf_url ?? `${siteUrl}/research/${p.id}/`;
+  const own = d.paper_url ?? d.pdf_url;
+  const link = doiUrl(d.doi) ?? (own ? absoluteUrl(own, siteUrl) : `${siteUrl}/research/${p.id}/`);
 
   if (d.status === 'book-chapter') {
     const eds = d.book_editors?.length
@@ -245,7 +266,8 @@ export function formatBibtex(p: Paper, siteUrl: string): string {
     fields.push(['year', d.year?.toString()]);
   }
   fields.push(['doi', d.doi]);
-  fields.push(['url', d.doi ? undefined : d.paper_url ?? d.pdf_url ?? `${siteUrl}/research/${p.id}/`]);
+  const own = d.paper_url ?? d.pdf_url;
+  fields.push(['url', d.doi ? undefined : own ? absoluteUrl(own, siteUrl) : `${siteUrl}/research/${p.id}/`]);
   const body = fields
     .filter(([, v]) => v)
     .map(([k, v]) => `  ${k.padEnd(9)} = {${v}}`)

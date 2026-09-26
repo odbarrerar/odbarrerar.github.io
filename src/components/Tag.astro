@@ -7,7 +7,7 @@
 interface Props {
   variant?: 'plain' | 'status' | 'topic' | 'lang' | 'accent';
   /** For status tags: which marker to draw. */
-  marker?: 'published' | 'working' | 'progress' | 'upcoming';
+  marker?: 'published' | 'working' | 'progress' | 'upcoming' | 'jmp';
   href?: string;
   class?: string;
   title?: string;
@@ -97,5 +97,13 @@ const Tag = href ? 'a' : 'span';
   .tag--upcoming .tag__marker {
     border-radius: 50%;
     background: currentColor;
+  }
+
+  /* Job market paper: a filled diamond */
+  .tag--jmp .tag__marker {
+    width: 0.56em;
+    height: 0.56em;
+    background: currentColor;
+    transform: rotate(45deg);
   }
 </style>

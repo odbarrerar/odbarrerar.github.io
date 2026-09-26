@@ -10,14 +10,19 @@ import SocialLinks from '../components/SocialLinks.astro';
 import Tag from '../components/Tag.astro';
 import Icon from '../components/Icon.astro';
 import { media, news, profile, talks, themes } from '../lib/data';
-import { STATUS_LABEL, featured, getPapers, groupOf, paperUrl } from '../lib/research';
+import { STATUS_LABEL, featured, getPapers, groupOf, jobMarketPaper, paperUrl } from '../lib/research';
 import { formatPartialDate } from '../lib/format';
 import { profilePageSchema } from '../lib/seo';
 
 const papers = await getPapers();
-const featuredPapers = featured(papers).slice(0, 4);
+const jmp = jobMarketPaper(papers);
+// The job market paper leads the featured papers and is not repeated below
+const featuredPapers = [...(jmp ? [jmp] : []), ...featured(papers).filter((p) => p.id !== jmp?.id)].slice(0, jmp ? 5 : 4);
 const current = papers.filter(
-  (p) => !p.data.featured && ['working-paper', 'submitted', 'work-in-progress'].includes(p.data.status),
+  (p) =>
+    p.id !== jmp?.id &&
+    !p.data.featured &&
+    ['working-paper', 'submitted', 'work-in-progress'].includes(p.data.status),
 );
 const countByTheme = new Map(themes.map((t) => [t.id, papers.filter((p) => p.data.topics.includes(t.id)).length]));
 
@@ -36,7 +41,7 @@ const paperTitle = new Map(papers.map((p) => [p.id, { title: p.data.title, href:
 ---
 
 <BaseLayout type="profile" jsonLd={[profilePageSchema(site, `${site}/`)]}>
-  <Hero />
+  <Hero jmp={jmp} />
 
   <!-- A. Research themes -->
   <section class="section home-themes" aria-labelledby="themes-title">

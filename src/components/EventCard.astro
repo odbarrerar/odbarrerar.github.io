@@ -36,7 +36,7 @@ const label = when();
 <li class:list={['event', upcoming && 'event--upcoming']} data-filter-item data-type={talk.type}>
   {
     label && (
-      <p class="event__when tnum">
+      <p class="event__when num">
         <time datetime={talk.date ?? (talk.month ? `${talk.year}-${String(talk.month).padStart(2, '0')}` : String(talk.year))}>{label}</time>
       </p>
     )

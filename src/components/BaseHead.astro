@@ -63,6 +63,7 @@ const structured = graph(websiteSchema(site), personSchema(site, portraitUrl), .
 {noindex ? <meta name="robots" content="noindex, follow" /> : <link rel="canonical" href={canonical} />}
 <meta name="author" content={profile.name} />
 <meta name="generator" content={Astro.generator} />
+{profile.google_site_verification && <meta name="google-site-verification" content={profile.google_site_verification} />}
 
 <!-- Theme: applied before first paint to avoid a flash of the wrong theme -->
 <script is:inline>

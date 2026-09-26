@@ -1,0 +1,172 @@
+---
+/**
+ * Job market paper in the homepage hero: title, latest version and direct
+ * links. Shown when a paper has `job_market_paper: true`. The optional
+ * `job_market_note` from profile.yaml appears above it.
+ */
+import Icon from './Icon.astro';
+import { coauthors, paperUrl, type Paper } from '../lib/research';
+import { formatPartialDate, joinList } from '../lib/format';
+
+interface Props {
+  paper?: Paper;
+  note?: string;
+}
+
+const { paper, note } = Astro.props;
+const d = paper?.data;
+const others = paper ? coauthors(paper) : [];
+---
+
+{
+  (paper || note) && (
+    <section class="jmp" aria-labelledby={paper ? 'jmp-label' : undefined}>
+      {note && <p class="jmp__note">{note}</p>}
+      {paper && d && (
+        <>
+          <h2 id="jmp-label" class="jmp__label">
+            <span class="jmp__marker" aria-hidden="true" />
+            Job market paper
+          </h2>
+          <p class="jmp__title">
+            <a href={paperUrl(paper)}>{d.title}</a>
+          </p>
+          {(others.length > 0 || d.version_date) && (
+            <p class="jmp__meta">
+              {others.length > 0 && <span>with {joinList(others)}</span>}
+              {d.version_date && (
+                <span>
+                  Latest version: <time datetime={d.version_date}>{formatPartialDate(d.version_date)}</time>
+                </span>
+              )}
+            </p>
+          )}
+          <ul class="jmp__links" role="list">
+            {d.pdf_url && (
+              <li>
+                <a href={d.pdf_url}>
+                  <Icon name="download" />
+                  <span>Read the paper (PDF)</span>
+                </a>
+              </li>
+            )}
+            <li>
+              <a href={paperUrl(paper)}>
+                <Icon name="arrow-right" />
+                <span>Abstract</span>
+              </a>
+            </li>
+            {d.slides_url && (
+              <li>
+                <a href={d.slides_url}>
+                  <Icon name="slides" />
+                  <span>Slides</span>
+                </a>
+              </li>
+            )}
+          </ul>
+        </>
+      )}
+    </section>
+  )
+}
+
+<style>
+  .jmp {
+    max-width: 41rem;
+    padding: 1.05rem 1.25rem 0.6rem;
+    border-left: 2px solid var(--color-accent);
+    border-radius: 0 var(--radius-s) var(--radius-s) 0;
+    background: var(--color-bg-soft);
+  }
+
+  .jmp__note {
+    margin-bottom: 0.7rem;
+    font-size: var(--step--1);
+    font-weight: 560;
+    color: var(--color-text);
+  }
+
+  .jmp__label {
+    display: flex;
+    align-items: center;
+    gap: 0.55em;
+    font-family: var(--font-text);
+    font-size: var(--step--2);
+    font-weight: 600;
+    letter-spacing: var(--tracking-label);
+    line-height: 1.2;
+    text-transform: uppercase;
+    color: var(--color-accent);
+  }
+
+  .jmp__marker {
+    width: 0.5em;
+    height: 0.5em;
+    background: currentColor;
+    transform: rotate(45deg);
+  }
+
+  .jmp__title {
+    margin-top: 0.5rem;
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    line-height: 1.28;
+    text-wrap: pretty;
+  }
+
+  .jmp__title a {
+    color: var(--color-text);
+    text-decoration: none;
+  }
+
+  .jmp__title a:hover {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+  }
+
+  .jmp__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 1rem;
+    margin-top: 0.3rem;
+    font-size: var(--step--1);
+    color: var(--color-text-subtle);
+  }
+
+  .jmp__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 1.3rem;
+    margin: 0.35rem 0 0;
+    padding: 0;
+  }
+
+  .jmp__links a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    min-height: 2.5rem;
+    font-size: var(--step--1);
+    font-weight: 560;
+    color: var(--color-text);
+    text-decoration: none;
+  }
+
+  .jmp__links a:hover {
+    color: var(--color-accent);
+  }
+
+  .jmp__links a:hover span {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
+  }
+
+  .jmp__links :global(.icon) {
+    width: 1em;
+    height: 1em;
+    color: var(--color-accent);
+  }
+</style>

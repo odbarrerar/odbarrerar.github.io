@@ -41,6 +41,7 @@ const initials = profile.name
         src={image}
         alt={`Portrait of ${profile.name}`}
         widths={widths}
+        width={Math.max(...widths)}
         sizes={sizes}
         formats={['avif', 'webp']}
         fallbackFormat="jpg"

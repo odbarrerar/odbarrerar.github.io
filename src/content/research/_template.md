@@ -44,7 +44,8 @@ keywords: [Keyword one, Keyword two]
 # ── Links (all optional) ─────────────────────────────────────────────────
 # paper_url: https://…        # journal page or paper website
 # paper_label: Paper website  # label for paper_url if not a journal
-# pdf_url: https://…          # direct PDF (e.g. /files/my-paper.pdf)
+# pdf_url: /files/my-paper.pdf # direct PDF: a file you put in public/files/, or a full https:// link
+# version_date: "2026-09"     # working papers: date of the current draft ("Latest version: September 2026")
 # code_url: https://github.com/odbarrerar/…
 # data_url: https://…
 # data_label: Data (Harvard Dataverse)
@@ -62,6 +63,7 @@ keywords: [Keyword one, Keyword two]
 #     date: 2026-01-15
 #     url: https://…
 
+job_market_paper: false       # true = your job market paper (only one paper): shown in the homepage hero and first everywhere
 featured: false               # true = shown under "Featured research" on the homepage
 # order: 1                    # position among featured papers
 ---

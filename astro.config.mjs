@@ -9,6 +9,10 @@ const fs = '@fontsource-variable';
 export default defineConfig({
   site: 'https://odbarrerar.github.io',
   trailingSlash: 'always',
+  // Old addresses of pages that moved (e.g. a paper that changed title)
+  redirects: {
+    '/research/confirmation-bias-political-polarization/': '/research/biased-information-biased-preferences/',
+  },
   build: {
     // Inline all CSS (≈6 kB gzipped) so pages render without extra requests
     inlineStylesheets: 'always',

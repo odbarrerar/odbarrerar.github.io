@@ -90,7 +90,19 @@ Edit **`src/data/profile.yaml`**. Every link on the site (header, footer, contac
 Open its file, change `status: working-paper` to `status: published`, add `venue`, `volume`, `pages`, `doi` and `paper_url`, and move the old working-paper link under `versions:`.
 
 ### Feature a paper on the homepage
-Set `featured: true` and `order: 1` (2, 3, …) in its file. Four featured papers are shown.
+Set `featured: true` and `order: 1` (2, 3, …) in its file. Four featured papers are shown, after the job market paper if there is one.
+
+### Your job market paper
+The paper with `job_market_paper: true` (only one) is shown in the homepage hero, leads *Featured research*, has its own section at the top of the Research and CV pages, and carries a *Job market paper* label everywhere. It is currently `src/content/research/biased-information-biased-preferences.md`.
+
+To post a new draft:
+1. Replace **`public/files/JMP_Barrera.pdf`** with the new PDF, keeping the file name so the link you send to committees never changes: `https://odbarrerar.github.io/files/JMP_Barrera.pdf`.
+2. In the paper's file, update `version_date:` (e.g. `"2026-11"`, shown as "Latest version: November 2026") and, if it changed, the abstract.
+
+Optional: `job_market_note:` in `profile.yaml` adds a sentence above the paper in the hero, e.g. *I am on the 2026–2027 academic job market.*
+
+### A paper changes title
+Edit `title:` and keep the old one as `previous_title:` (shown as "Previously circulated as …"). The address can stay the same. If you also rename the file, add the old address to `redirects:` in `astro.config.mjs` so existing links keep working, as was done for the confirmation-bias paper.
 
 ### Add a talk or conference
 Open **`src/data/talks.yaml`**, copy an entry, paste it at the top and edit it. Add `date: 2026-11-14` for a precise date: future dates are highlighted as *Upcoming* automatically, and move to the archive once they pass (the site rebuilds weekly). Link a talk to a paper with `paper: winner-takes-all` (the paper's file name).
@@ -108,7 +120,7 @@ Edit **`src/data/code.yaml`** (`kind:` `code`, `data` or `replication`). Replica
 Add an entry at the top of **`src/data/news.yaml`**.
 
 ### Update the CV
-Positions, education, grants, consulting, visits and other experience are in **`src/data/cv.yaml`**. Publications, teaching and talks on the CV page are generated automatically. Replace the PDF as described below.
+Positions, education, grants, consulting, visits, other experience and references are in **`src/data/cv.yaml`**. Publications, teaching and talks on the CV page are generated automatically. Replace the PDF as described below.
 
 ### Write a note
 Copy `src/content/notes/_template.md`, rename it and write in plain text (Markdown).
@@ -170,7 +182,9 @@ The repository must be called **`odbarrerar.github.io`** for the site to live at
 
 The workflow (`.github/workflows/deploy.yml`) also rebuilds every Monday, so "Upcoming" talks and the "Last updated" date stay current. A second workflow (`checks.yml`) type-checks and verifies internal links on every push, and requests every external link on the 1st of each month; GitHub emails you if a check fails.
 
-To retire the Google Site, add a short notice with a link to the new address, or unpublish it once the new site is indexed.
+To retire the Google Site, replace its content with a short notice linking to the new address (Google Sites cannot redirect automatically), and unpublish it once the new site shows up first in searches for your name.
+
+**Google Search Console** (optional, speeds up indexing): add the property `https://odbarrerar.github.io/` at search.google.com/search-console, choose the *HTML tag* method, paste the `content` code into `google_site_verification:` in `profile.yaml`, push, click *Verify*, then submit `sitemap-index.xml` under *Sitemaps*.
 
 ## 6. Use a custom domain later
 

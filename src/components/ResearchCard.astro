@@ -14,6 +14,7 @@ import {
   venueParts,
   type Paper,
 } from '../lib/research';
+import { formatPartialDate } from '../lib/format';
 
 interface Props {
   paper: Paper;
@@ -32,16 +33,25 @@ const themes = themeTitles(paper);
 ---
 
 <article
-  class:list={['rcard', `rcard--${variant}`]}
+  class:list={['rcard', `rcard--${variant}`, d.job_market_paper && 'rcard--jmp']}
   data-filter-item
   data-group={group}
   data-topics={d.topics.join(' ')}
   data-year={d.year ?? ''}
 >
   <div class="rcard__meta">
+    {d.job_market_paper && <Tag variant="accent" marker="jmp">Job market paper</Tag>}
     <Tag variant="status" marker={group}>{STATUS_LABEL[d.status]}</Tag>
     {venue && <p class="rcard__venue"><cite>{venue}</cite></p>}
-    {details && <p class="rcard__details num">{details}</p>}
+    {
+      d.version_date ? (
+        <p class="rcard__details">
+          Latest version: <time datetime={d.version_date}>{formatPartialDate(d.version_date)}</time>
+        </p>
+      ) : (
+        details && <p class="rcard__details num">{details}</p>
+      )
+    }
     {d.open_access && <p class="rcard__oa">Open access</p>}
   </div>
 
