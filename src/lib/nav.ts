@@ -6,7 +6,7 @@ export const NAV = [
   { href: '/teaching/', label: 'Teaching' },
   { href: '/talks/', label: 'Talks' },
   { href: '/writing/', label: 'Writing' },
- // { href: '/code/', label: 'Code & Data' },
+//  { href: '/code/', label: 'Code & Data' },
   { href: '/notes/', label: 'Notes' },
   { href: '/about/', label: 'About' },
   { href: '/contact/', label: 'Contact' },
