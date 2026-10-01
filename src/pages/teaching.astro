@@ -1,83 +1,132 @@
 ---
 import PageLayout from '../layouts/PageLayout.astro';
 import Icon from '../components/Icon.astro';
-import { profile, teaching } from '../lib/data';
+import { profile, supervision, teaching } from '../lib/data';
 
-const institutions = new Set(teaching.flatMap((c) => c.sessions.map((s) => s.institution)));
+const institutions = new Set([
+  ...teaching.flatMap((c) => c.sessions.map((s) => s.institution)),
+  ...supervision.map((t) => t.institution),
+]);
 const languages = new Set(teaching.map((c) => c.language).filter(Boolean));
-const years = teaching.flatMap((c) => c.sessions.map((s) => s.year));
+const years = [...teaching.flatMap((c) => c.sessions.map((s) => s.year)), ...supervision.map((t) => t.year)];
 const span = `${Math.min(...years)}–${Math.max(...years)}`;
+const hasSupervision = supervision.length > 0;
 ---
 
 <PageLayout
   title="Teaching"
+  heading={hasSupervision ? 'Teaching and supervision' : 'Teaching'}
   intro={profile.page_intros.teaching}
-  description={`Teaching by ${profile.name}: microeconomics, macroeconomics, statistics and quantitative methods at undergraduate and master's level in France.`}
+  description={`Teaching by ${profile.name}: microeconomics, macroeconomics, statistics and quantitative methods at undergraduate and master's level in France${hasSupervision ? ', and thesis supervision' : ''}.`}
 >
   <dl slot="header" class="stats">
     <div><dt>Courses</dt><dd class="num">{teaching.length}</dd></div>
+    {
+      hasSupervision && (
+        <div>
+          <dt>Theses supervised</dt>
+          <dd class="num">
+            <a href="#supervision">{supervision.length}</a>
+          </dd>
+        </div>
+      )
+    }
     <div><dt>Institutions</dt><dd class="num">{institutions.size}</dd></div>
     <div><dt>Languages</dt><dd>{[...languages].join(', ')}</dd></div>
     <div><dt>Years</dt><dd class="num">{span}</dd></div>
   </dl>
 
   <div class="container teaching">
-    <ol class="courses" role="list">
-      {
-        teaching.map((c) => (
-          <li class="course">
-            <div class="course__head">
-              <h2 class="course__title">{c.course}</h2>
-              <dl class="course__facts">
-                <div>
-                  <dt>Level</dt>
-                  <dd>{c.level}</dd>
-                </div>
-                {c.language && (
+    <section aria-labelledby="h-courses">
+      <h2 id="h-courses" class="teaching__heading">Courses</h2>
+      <ol class="courses" role="list">
+        {
+          teaching.map((c) => (
+            <li class="course">
+              <div class="course__head">
+                <h3 class="course__title">{c.course}</h3>
+                <dl class="course__facts">
                   <div>
-                    <dt>Language</dt>
-                    <dd>{c.language}</dd>
+                    <dt>Level</dt>
+                    <dd>{c.level}</dd>
                   </div>
-                )}
-                {c.role && (
-                  <div>
-                    <dt>Role</dt>
-                    <dd>{c.role}</dd>
-                  </div>
-                )}
-              </dl>
-            </div>
-            <div class="course__body">
-              {c.description && <p class="course__desc">{c.description}</p>}
-              <table class="sessions">
-                <caption class="visually-hidden">Where and when {c.course} was taught</caption>
-                <thead>
-                  <tr>
-                    <th scope="col">Institution</th>
-                    <th scope="col">Term</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {c.sessions.map((s) => (
+                  {c.language && (
+                    <div>
+                      <dt>Language</dt>
+                      <dd>{c.language}</dd>
+                    </div>
+                  )}
+                  {c.role && (
+                    <div>
+                      <dt>Role</dt>
+                      <dd>{c.role}</dd>
+                    </div>
+                  )}
+                </dl>
+              </div>
+              <div class="course__body">
+                {c.description && <p class="course__desc">{c.description}</p>}
+                <table class="sessions">
+                  <caption class="visually-hidden">Where and when {c.course} was taught</caption>
+                  <thead>
                     <tr>
-                      <td>{s.institution}</td>
-                      <td class="num">{s.term}</td>
+                      <th scope="col">Institution</th>
+                      <th scope="col">Term</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-              {c.syllabus && (
-                <p class="course__syllabus">
-                  <a href={c.syllabus}>
-                    <Icon name="file" /> Syllabus
-                  </a>
-                </p>
-              )}
-            </div>
-          </li>
-        ))
-      }
-    </ol>
+                  </thead>
+                  <tbody>
+                    {c.sessions.map((s) => (
+                      <tr>
+                        <td>{s.institution}</td>
+                        <td class="num">{s.term}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                {c.syllabus && (
+                  <p class="course__syllabus">
+                    <a href={c.syllabus}>
+                      <Icon name="file" /> Syllabus
+                    </a>
+                  </p>
+                )}
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+    </section>
+
+    {
+      hasSupervision && (
+        <section id="supervision" class="supervision" aria-labelledby="h-supervision">
+          <h2 id="h-supervision" class="teaching__heading">
+            Thesis supervision
+          </h2>
+          <ol class="theses" role="list">
+            {supervision.map((t) => (
+              <li class="thesis">
+                <p class="thesis__year num">{t.year}</p>
+                <div>
+                  <h3 class="thesis__title">{t.url ? <a href={t.url}>{t.title}</a> : t.title}</h3>
+                  <p class="thesis__student">
+                    {t.student}
+                    <span class="thesis__degree">
+                      {' '}
+                      · {t.degree}, {t.institution}
+                    </span>
+                  </p>
+                  {t.summary && <p class="thesis__summary">{t.summary}</p>}
+                  {(t.role !== 'Supervisor' || t.note) && (
+                    <p class="thesis__meta">{[t.role !== 'Supervisor' ? t.role : '', t.note ?? ''].filter(Boolean).join(' · ')}</p>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ol>
+        </section>
+      )
+    }
   </div>
 </PageLayout>
 
@@ -103,9 +152,93 @@ const span = `${Math.min(...years)}–${Math.max(...years)}`;
     font-size: var(--step-2);
   }
 
+  .stats dd a {
+    color: inherit;
+    text-decoration-thickness: 1px;
+    text-decoration-color: var(--color-border-strong);
+  }
+
+  .stats dd a:hover {
+    color: var(--color-accent);
+  }
+
   .teaching {
     padding-top: var(--space-xl);
     padding-bottom: var(--space-section);
+  }
+
+  .teaching__heading {
+    margin-bottom: var(--space-s);
+    font-size: var(--step-3);
+  }
+
+  .supervision {
+    margin-top: var(--space-2xl);
+    scroll-margin-top: calc(var(--header-h) + 1rem);
+  }
+
+  .theses {
+    margin: 0;
+    padding: 0;
+  }
+
+  .thesis {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.2rem var(--space-l);
+    padding-block: var(--space-l);
+    border-top: 1px solid var(--color-border);
+  }
+
+  @media (min-width: 40em) {
+    .thesis {
+      grid-template-columns: 8.5rem minmax(0, 1fr);
+    }
+  }
+
+  .thesis__year {
+    padding-top: 0.2rem;
+    font-size: var(--step--1);
+    color: var(--color-text-subtle);
+  }
+
+  .thesis__title {
+    max-width: 44rem;
+    font-size: var(--step-1);
+    font-weight: 450;
+    line-height: 1.3;
+  }
+
+  .thesis__title a {
+    color: inherit;
+  }
+
+  .thesis__title a:hover {
+    color: var(--color-accent);
+  }
+
+  .thesis__student {
+    margin-top: 0.45rem;
+    font-size: var(--step--1);
+    font-weight: 560;
+  }
+
+  .thesis__degree {
+    font-weight: 400;
+    color: var(--color-text-muted);
+  }
+
+  .thesis__summary {
+    margin-top: 0.5rem;
+    max-width: 44rem;
+    font-size: var(--step--1);
+    color: var(--color-text-muted);
+  }
+
+  .thesis__meta {
+    margin-top: 0.4rem;
+    font-size: var(--step--1);
+    color: var(--color-text-subtle);
   }
 
   .courses {

@@ -110,6 +110,9 @@ Open **`src/data/talks.yaml`**, copy an entry, paste it at the top and edit it. 
 ### Add a course
 Edit **`src/data/teaching.yaml`**. Each course lists the institutions and terms under `sessions:`.
 
+### Add a supervised thesis
+Edit **`src/data/supervision.yaml`**: copy an entry, paste it at the top and change the student, degree, institution, year and title. `summary:` (one sentence on the topic) is optional. Theses appear under *Thesis supervision* on the Teaching page and on the CV. Add `role: Second reader` (or `Co-supervisor`) when you were not the main supervisor, and `url:` only for a public copy the student agreed to share.
+
 ### Add a blog post, op-ed or media appearance
 Edit **`src/data/media.yaml`** and choose `type:` `blog`, `commentary`, `policy`, `coverage` or `profile`. Use `language: es` for Spanish pieces. Link it to a paper with `paper:`.
 

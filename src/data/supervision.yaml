@@ -1,0 +1,38 @@
+# ──────────────────────────────────────────────────────────────────────────
+#  THESIS SUPERVISION
+#
+#  Theses you supervised. Shown on the Teaching page ("Thesis supervision")
+#  and on the CV. To add a student, copy an entry, paste it at the top and
+#  edit it. The list is sorted by year automatically, newest first.
+#
+#  Required:  student, degree, institution, year, title
+#  Optional:  role     what you did, if not "Supervisor" (e.g. Second reader,
+#                      Co-supervisor)
+#             summary  one sentence on the topic of the thesis
+#             url      a public link to the thesis (only with the student's
+#                      permission, e.g. a university repository)
+#             note     e.g. an award the thesis received
+#
+#  To hide the whole section, delete the entries (or put # in front of
+#  every line). Grades are personal data: don't add them.
+# ──────────────────────────────────────────────────────────────────────────
+
+- student: Dimitrios Kareklas
+  degree: MSc Politics and Data Science
+  institution: University College Dublin
+  year: 2026
+  title: "The Impact of Trade Integration on Global Development Gaps: A Comparative Analysis of US and Chinese Core–Periphery Dynamics"
+  summary: >-
+    Whether bilateral trade with the United States and with China, and U.S. foreign direct
+    investment, are associated with convergence or divergence in development across 84 Global
+    South countries, 1990–2024.
+
+- student: Jonas Poulsen
+  degree: MSc European Politics and Policy
+  institution: University College Dublin
+  year: 2025
+  title: "The Cash Transfer Dilemma: Welfare Design and Populist Voting in 24 Democracies"
+  summary: >-
+    How the weight of cash transfers within social protection relates to populist vote shares
+    in 24 European democracies, 2008–2022, and how the relationship differs across welfare
+    regimes.

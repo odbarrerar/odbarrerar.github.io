@@ -119,7 +119,7 @@ export function isSelf(name: string): boolean {
  * Two-part (Spanish) surnames that must not be split when citing.
  * Add a line here if a co-author's family name has two words.
  */
-const COMPOUND_SURNAMES = ['Barrera Rodríguez', 'Quintero Godínez', 'Barrera Rodriguez'];
+const COMPOUND_SURNAMES = ['Barrera Rodríguez', 'Quintero Godínez', 'Barrera Rodriguez', 'Valquez García'];
 
 /** Splits "Given Family" (or "Family, Given") into parts. */
 export function splitName(name: string): { given: string; family: string } {

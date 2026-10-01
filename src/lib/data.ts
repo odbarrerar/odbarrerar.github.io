@@ -16,6 +16,7 @@ import mediaRaw from '../data/media.yaml?raw';
 import codeRaw from '../data/code.yaml?raw';
 import newsRaw from '../data/news.yaml?raw';
 import cvRaw from '../data/cv.yaml?raw';
+import supervisionRaw from '../data/supervision.yaml?raw';
 
 /* ───────────────────────── helpers ───────────────────────── */
 
@@ -207,6 +208,30 @@ const TeachingSchema = z.object({
 });
 export type Course = z.output<typeof TeachingSchema>;
 export const teaching: Course[] = load('teaching.yaml', teachingRaw, z.array(TeachingSchema));
+
+/* ───────────────────────── thesis supervision ───────────────────────── */
+
+const ThesisSchema = z.object({
+  student: z.string(),
+  degree: z.string(),
+  institution: z.string(),
+  year: z.number().int(),
+  title: z.string(),
+  role: z.string().default('Supervisor'),
+  summary: z.string().optional(),
+  url: optionalUrl,
+  note: z.string().optional(),
+});
+export type Thesis = z.output<typeof ThesisSchema>;
+/** Newest first. An empty file (all entries removed) hides the section. */
+export const supervision: Thesis[] = load(
+  'supervision.yaml',
+  supervisionRaw,
+  z
+    .array(ThesisSchema)
+    .nullish()
+    .transform((v) => v ?? []),
+).sort((a, b) => b.year - a.year);
 
 /* ───────────────────────── media ───────────────────────── */
 

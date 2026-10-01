@@ -3,7 +3,7 @@ import PageLayout from '../layouts/PageLayout.astro';
 import Button from '../components/Button.astro';
 import Timeline from '../components/Timeline.astro';
 import AuthorList from '../components/AuthorList.astro';
-import { cv, profile, talks, teaching } from '../lib/data';
+import { cv, profile, supervision, talks, teaching } from '../lib/data';
 import { getPapers, jobMarketPaper, paperUrl, venueParts, STATUS_LABEL, type Paper } from '../lib/research';
 import { formatPartialDate, formatRange } from '../lib/format';
 
@@ -32,6 +32,7 @@ const sections = [
   { id: 'working-papers', label: 'Working papers', show: workingPapers.length > 0 },
   { id: 'in-progress', label: 'Work in progress', show: inProgress.length > 0 },
   { id: 'teaching', label: 'Teaching', show: teaching.length > 0 },
+  { id: 'supervision', label: 'Thesis supervision', show: supervision.length > 0 },
   { id: 'grants', label: 'Grants & scholarships', show: cv.grants.length > 0 },
   { id: 'consulting', label: 'Consulting', show: cv.consulting.length > 0 },
   { id: 'visits', label: 'Academic visits', show: cv.visits.length > 0 },
@@ -198,6 +199,24 @@ function paperLine(p: Paper) {
               }))}
             />
             <p class="cv-more"><a href="/teaching/">Teaching details</a></p>
+          </section>
+        )
+      }
+
+      {
+        supervision.length > 0 && (
+          <section id="supervision" aria-labelledby="h-supervision">
+            <h2 id="h-supervision" class="cv-h2">Thesis supervision</h2>
+            <Timeline
+              compact
+              items={supervision.map((t) => ({
+                when: String(t.year),
+                title: t.student,
+                subtitle: `“${t.title}”`,
+                meta: [`${t.degree}, ${t.institution}`, t.role !== 'Supervisor' ? t.role : ''].filter(Boolean).join(' · '),
+                detail: t.note,
+              }))}
+            />
           </section>
         )
       }
