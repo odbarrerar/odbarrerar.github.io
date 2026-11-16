@@ -16,6 +16,16 @@
 
 # ── 2026 ──────────────────────────────────────────────────────────────────
 - year: 2026
+  date: 2026-10-21
+  event: Seminar
+  host: American University
+  city: Washington, DC
+  country: United States
+  type: Seminar
+  paper: biased-information-biased-preferences
+  slides: /files/Slides_Biased_Information_AU_2026.pdf
+
+- year: 2026
   date: 2026-09-03
   end_date: 2026-09-06
   event: 122nd APSA Annual Meeting
