@@ -7,6 +7,11 @@
 #  kind is one of: publication, talk, paper, writing, other
 # ──────────────────────────────────────────────────────────────────────────
 
+- date: 2026-11-16
+  kind: paper
+  text: "\"Winner-Takes-All\" is now available on APSA Preprints."
+  url: /research/winner-takes-all/
+
 - date: 2026-09
   kind: paper
   text: "New version of my job market paper, \"Biased Information, Biased Preferences\", with Lora Pavlova and Li Yang."
