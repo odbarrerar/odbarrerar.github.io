@@ -1,3 +1,4 @@
+---
 title: "Winner-Takes-All: Corporate Tax Erosion and Wealth Concentration in the United States"
 authors:
   - Aidan Regan
@@ -23,3 +24,15 @@ summary: >-
   Using Orbis and Compustat data on US corporate groups for 2001–2024, the paper finds that the
   top 0.1 per cent of groups capture 30 per cent of after-tax profits, and that the largest
   corporations pay the least tax.
+media:
+  - title: "Winners Take All: How Corporate Tax Cuts Weakened the Anchor of the Top 0.001%"
+    outlet: Democracy Challenged blog
+    date: 2026-01-05
+    url: https://democracychallenged.com/2026/01/05/winners-take-all-how-corporate-tax-cuts-weakened-the-anchor-of-the-top-0-001/
+  - title: "Winner Takes All: How Corporate Tax Policy is Manufacturing Billionaire Wealth"
+    outlet: Democracy Challenged blog
+    date: 2025-12-09
+    url: https://democracychallenged.com/2025/12/09/winner-takes-all-how-corporate-tax-policy-is-manufacturing-billionaire-wealth/
+featured: true
+order: 1
+---
